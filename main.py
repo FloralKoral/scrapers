@@ -19,57 +19,9 @@ xpath_div = "//div[@class='noindex']"
 xpath_lastpage_text = ".//a[contains(@href, 'alpha.php?lettre=')]"
 xpath_dl = "//a[@class='dl']"
 
-list_lastpage = []
 
 
-class scraperDafont:
-    def setup_browser(self, strat):  # strat = normal (complete), eager (interactive), none (undefined)
-        # BROWSWER SETUP DETAILS
-        # PREFERENCES - set preferences for options of browser
-        prefs = {"download.default_directory": r"D:\Brushes\00_UPTAKE\00_FONTSPACE_FONTS",
-                 'profile.default_content_setting_values.automatic_downloads': 1,
-                 "excludeSwitches": ["test-type", "enable-automation"]
-                 }
-
-        # OPTIONS
-        options = webdriver.ChromeOptions()
-        options.add_experimental_option("prefs", prefs)
-        options.headless = headless
-
-        # SERVICE
-        service = Service(r'D:\Code\Chromedriver\chromedriver.exe')
-
-        # CAPABILITIES - set how long driver waits
-        caps = DesiredCapabilities().CHROME
-        caps["pageLoadStrategy"] = strat  # see above choices
-
-        self.driver = webdriver.Chrome(desired_capabilities=caps, service=service, options=options)
-        self.driver.create_options()
-        # self.vars = {}
-        print("Browser configuration complete.\n")
-
-    def open_page(self, link):
-        self.driver.get(link)
-
-    def extract_lastpage(self):
-        # return list of last page web elements unformatted
-        return [elem for elem in self.driver.find_element(By.XPATH, xpath_div).find_elements(By.XPATH, xpath_lastpage_text)]
-
-    def list_convert_pagenumbers(self):
-        # return list of last pages for the range selected
-        list_elem_pagenumbers = self.extract_lastpage()
-        if len(list_elem_pagenumbers) == 1:
-            return list_lastpage.append(1)
-            #for some reason fucks up on x which only has one page but
-            #this resolves the issue for some fucking reason
-
-        elif len(list_elem_pagenumbers) > 1:
-            list_lastpage.append(max([int(elem.get_attribute("text").strip())
-                for elem in list_elem_pagenumbers if elem.get_attribute("text").strip() != '']))
-        return list_lastpage
-
-
-class sqlShit:
+class sqlShit():
     def createConnection(self, db_file):
         """ create a database connection to the SQLite database
             specified by the db_file
@@ -133,11 +85,74 @@ class sqlShit:
         except Error as e:
             print("Failed to update table", e)
 
+    def retrieve_lettre_page1_url(self, lettre):
+        cur = self.conn.cursor()
+        sql_link_query = "select page1_url from url_data where lettre = '%s'" % (lettre)
+        cur.execute(sql_link_query)
+        rows = cur.fetchall()
+        rows = [i[0] for i in rows]
+        print(rows[0])
+
     def cursor_iteration(self, x):
         cur = self.conn.cursor()
         cur.execute('select * from url_data')
         for row in cur:
             print(row[x])
+
+
+class scraperDafont():
+    sqlshit = sqlShit()
+    list_lastpage = []
+
+    def setup_browser(self, strat):  # strat = normal (complete), eager (interactive), none (undefined)
+        # BROWSWER SETUP DETAILS
+        # PREFERENCES - set preferences for options of browser
+        prefs = {"download.default_directory": r"D:\Brushes\00_UPTAKE\00_FONTSPACE_FONTS",
+                 'profile.default_content_setting_values.automatic_downloads': 1,
+                 "excludeSwitches": ["test-type", "enable-automation"]
+                 }
+
+        # OPTIONS
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option("prefs", prefs)
+        options.headless = headless
+
+        # SERVICE
+        service = Service(r'D:\Code\Chromedriver\chromedriver.exe')
+
+        # CAPABILITIES - set how long driver waits
+        caps = DesiredCapabilities().CHROME
+        caps["pageLoadStrategy"] = strat  # see above choices
+
+        self.driver = webdriver.Chrome(desired_capabilities=caps, service=service, options=options)
+        self.driver.create_options()
+        # self.vars = {}
+        print("Browser configuration complete.\n")
+
+    def open_page(self, lettre):
+        #use letter from sql to get certain data points on it
+        
+
+    def extract_lastpage(self):
+        # return list of last page web elements unformatted
+        return [elem for elem in self.driver.find_element(By.XPATH, xpath_div).find_elements(By.XPATH, xpath_lastpage_text)]
+
+    def list_convert_pagenumbers(self):
+        # return list of last pages for the range selected
+        list_elem_pagenumbers = self.extract_lastpage()
+        if len(list_elem_pagenumbers) == 1:
+            self.sqlshit.update_page_count_test()
+            return self.list_lastpage.append(1)
+
+            #for some reason fucks up on x which only has one page but
+            #this resolves the issue for some fucking reason
+
+        elif len(list_elem_pagenumbers) > 1:
+            self.list_lastpage.append(max([int(elem.get_attribute("text").strip())
+                for elem in list_elem_pagenumbers if elem.get_attribute("text").strip() != '']))
+        return self.list_lastpage
+
+
 
 
 
@@ -147,8 +162,9 @@ def main():
     run.createConnection(database)
     # run.initial_data_population()
     # run.deleteAll()
-    run.update_page_count_test(23,'b')
-    run.getTable()
+    # run.update_page_count_test(23,'b')
+    run.select_link_from_lettre('a')
+    # run.getTable()
 
 
 if __name__ == '__main__':
