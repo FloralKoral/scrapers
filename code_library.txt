@@ -1,0 +1,62 @@
+    def createTable(self):
+
+
+    def checkTableExists(self, tablename):
+        dbcur = self.db_name.cursor()
+        dbcur.execute("""
+            SELECT COUNT(*)
+            FROM information_schema.tables
+            WHERE table_name = '{0}'
+            """.format(tablename.replace('\'', '\'\'')))
+        if dbcur.fetchone()[0] == 1:
+            dbcur.close()
+            return True
+
+        dbcur.close()
+        return False
+
+class DatabaseManager:
+    ''' Database Manager '''
+
+    def __init__(self, db_name):
+        self.db_name = db_name  # database name
+        self.conn = None        # connection
+
+    def check_database(self):
+        ''' Check if the database exists or not '''
+
+        try:
+            print(f'Checking if {self.db_name} exists or not...')
+            self.conn = sqlite3.connect(self.db_name, uri=True)
+            print(f'Database exists. Succesfully connected to {self.db_name}')
+
+        except sqlite3.OperationalError as err:
+            print('Database does not exist')
+            print(err)
+
+    def close_connection(self):
+        ''' Close connection to database '''
+
+        if self.conn is not None:
+            self.conn.close()
+
+
+def main():
+    ''' Create connection with the database '''
+
+    db_uri = 'file:///D:/code/scrapers/data_dafont.db?mode=rw'
+    dbmngr = DatabaseManager(db_uri)
+    dbmngr.check_database()
+    dbmngr.close_connection()
+
+
+if __name__ == '__main__':
+    main()
+
+
+
+
+    def cursor_iteration():
+    cur.execute('select * from url_data')
+    for row in cur:
+        print(row[1])
