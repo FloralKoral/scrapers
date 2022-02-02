@@ -53,7 +53,11 @@ def main():
 if __name__ == '__main__':
     main()
 
-
+    def cursor_iteration(self, x):
+        cur = self.conn.cursor()
+        cur.execute('select * from url_data')
+        for row in cur:
+            print(row[x])
 
 
     def cursor_iteration():
