@@ -8,7 +8,7 @@ import os
 import sqlite3
 from sqlite3 import Error
 
-headless = False
+headless = True
 # DATA
 url_dafont = 'https://www.dafont.com/alpha.php?lettre={}&page={}&fpp=200'
 keys = [ascii for ascii in ascii_lowercase] + ['%23']
@@ -16,7 +16,8 @@ values = [url_dafont.format(values, '1') for values in keys]
 
 # dafont - page text vars
 xpath_div = "//div[@class='noindex']"
-xpath_lastpage_text = ".//a[contains(@href, 'alpha.php?lettre=')]"
+xpath_lastpage_text = ".//a[contains(@href, 'alpha.php?lettre=')]" #working version
+# xpath_lastpage_text = "//a[contains(@href, 'alpha.php?lettre=')]" #test
 xpath_dl = "//a[@class='dl']"
 
 
@@ -103,9 +104,6 @@ class sqlShit(object):
             print(row[x])
 
 
-
-
-
     def setup_browser(self, strat):  # strat = normal (complete), eager (interactive), none (undefined)
         # BROWSWER SETUP DETAILS
         # PREFERENCES - set preferences for options of browser
@@ -133,18 +131,36 @@ class sqlShit(object):
 
     def open_page(self, lettre):
         #use letter from sql to get certain data points on it
-        var = self.sqlshit.retrieve_lettre_page1_url(lettre)
+        var = self.retrieve_lettre_page1_url(lettre)
         self.driver.get(var)
 
-    def extract_lastpage(self):
-        # return list of last page web elements unformatted
-        return [elem for elem in self.driver.find_element(By.XPATH, xpath_div).find_elements(By.XPATH, xpath_lastpage_text)]
+    def extract_lastpage(self, lettre):
+        xpath_div_var = self.driver.find_element(By.XPATH, xpath_div)
+        xpath_lastpage_text_var = [elem for elem in xpath_div_var.find_elements(By.XPATH, xpath_lastpage_text)]
+
+
+
+        if len(xpath_lastpage_text_var) == 1:
+            self.update_page_count_test(1, lettre)
+            # return self.list_lastpage.append(1)
+
+            #for some reason fucks up on x which only has one page but
+            #this resolves the issue for some fucking reason
+
+        elif len(xpath_lastpage_text_var) > 1:
+            page_ints = [int(elem.get_attribute("text").strip()) for elem in xpath_lastpage_text_var
+                               if elem.get_attribute("text").strip() != '']
+            max_page = max(page_ints) #returns max of the list
+            self.update_page_count_test(max_page, lettre)
+
+
+
 
     def list_convert_pagenumbers(self):
         # return list of last pages for the range selected
         list_elem_pagenumbers = self.extract_lastpage()
         if len(list_elem_pagenumbers) == 1:
-            self.sqlshit.update_page_count_test()
+            self.update_page_count_test()
             return self.list_lastpage.append(1)
 
             #for some reason fucks up on x which only has one page but
@@ -161,17 +177,18 @@ class sqlShit(object):
 
 def main():
     database = "data_dafont.db"
+    lettre = 'a'
     run = sqlShit()
-    nur = scraperDafont()
     run.createConnection(database)
     # run.initial_data_population()
     # run.deleteAll()
     # run.update_page_count_test(23,'b')
     # run.select_link_from_lettre('a')
     # run.getTable()
-    nur.setup_browser("normal")
-    nur.open_page('a')
-
+    run.setup_browser("normal")
+    run.open_page(lettre)
+    run.extract_lastpage(lettre)
+    run.getTable()
 
 if __name__ == '__main__':
     main()

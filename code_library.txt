@@ -64,3 +64,32 @@ if __name__ == '__main__':
     cur.execute('select * from url_data')
     for row in cur:
         print(row[1])
+
+
+
+            def extract_lastpage(self, lettre):
+        # return list of last page web elements unformatted
+        # xpath_div_var =
+        return self.driver.find_elements(By.XPATH, xpath_lastpage_text)
+        # xpath_lastpage_var = xpath_div_var.find_elements(By.XPATH, xpath_lastpage_text)
+        # xpath_lastpage_text_var = xpath_lastpage_var
+        # removed brackets around xpath_div_elems as it should return a list by default
+        # return text elements ready for conversion in next step
+        # for elem in [xpath_div_elems]:
+        #     text_elem = elem.find_elements(By.XPATH, xpath_lastpage_text)
+
+        # xpath_lastpage_elems = [elem.find_elements(By.XPATH, xpath_lastpage_text) for elem in xpath_div_elems]
+        # page_list = [elem.get_attribute("text").strip() for elem in xpath_lastpage_elems]
+
+        # if len(xpath_lastpage_elems) == 1:
+        #     # this part should work
+        #     self.update_page_count_test(1, lettre)
+        #     return self.list_lastpage.append(1)
+        #
+        # elif len(xpath_lastpage_elems) > 1:
+        #     # this is pythonic as fuck but unreadable need to break this out into variables or something
+        #     pagenumber_list = [int(elem.get_attribute("text").strip())
+        #      for elem in xpath_lastpage_elems if elem.get_attribute("text").strip() != '']
+        #
+        #     self.list_lastpage.append(max())
+        # return self.list_lastpage
