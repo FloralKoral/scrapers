@@ -14,6 +14,11 @@ url_dafont = 'https://www.dafont.com/alpha.php?lettre={}&page={}&fpp=200'
 keys = [ascii for ascii in ascii_lowercase] + ['%23']
 values = [url_dafont.format(values, '1') for values in keys]
 
+# dafont - page text vars
+xpath_div = "//div[@class='noindex']"
+xpath_lastpage_text = ".//a[contains(@href, 'alpha.php?lettre=')]"
+xpath_dl = "//a[@class='dl']"
+
 class scraperDafont:
     def setup_browser(self, strat):  # strat = normal (complete), eager (interactive), none (undefined)
         # BROWSWER SETUP DETAILS
@@ -40,7 +45,7 @@ class scraperDafont:
         # self.vars = {}
         print("Browser configuration complete.\n")
 
-        
+
 
 class sqlShit:
     def createConnection(self, db_file):
