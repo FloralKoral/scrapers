@@ -8,16 +8,42 @@ import os
 import sqlite3
 from sqlite3 import Error
 
-
+headless = False
 # DATA
 url_dafont = 'https://www.dafont.com/alpha.php?lettre={}&page={}&fpp=200'
 keys = [ascii for ascii in ascii_lowercase] + ['%23']
 values = [url_dafont.format(values, '1') for values in keys]
 
+class scraperDafont:
+    def setup_browser(self, strat):  # strat = normal (complete), eager (interactive), none (undefined)
+        # BROWSWER SETUP DETAILS
+        # PREFERENCES - set preferences for options of browser
+        prefs = {"download.default_directory": r"D:\Brushes\00_UPTAKE\00_FONTSPACE_FONTS",
+                 'profile.default_content_setting_values.automatic_downloads': 1,
+                 "excludeSwitches": ["test-type", "enable-automation"]
+                 }
 
-class sql_shit:
+        # OPTIONS
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option("prefs", prefs)
+        options.headless = headless
 
-    def create_connection(self, db_file):
+        # SERVICE
+        service = Service(r'D:\Code\Chromedriver\chromedriver.exe')
+
+        # CAPABILITIES - set how long driver waits
+        caps = DesiredCapabilities().CHROME
+        caps["pageLoadStrategy"] = strat  # see above choices
+
+        self.driver = webdriver.Chrome(desired_capabilities=caps, service=service, options=options)
+        self.driver.create_options()
+        # self.vars = {}
+        print("Browser configuration complete.\n")
+
+        
+
+class sqlShit:
+    def createConnection(self, db_file):
         """ create a database connection to the SQLite database
             specified by the db_file
         :param db_file: database file
@@ -61,24 +87,24 @@ class sql_shit:
         except Error as e:
             print("Failed to insert Python variable into sqlite table", e)
 
-    def initial_data_population(self):
+    def initialDataPopulation(self):
         #create the initial data table with page letters and page 1 urls
         for i in range(len(keys)):
             self.insertVaribleIntoTable(lettre=keys[i], page1_url=values[i])
         self.conn.commit()
 
+    # EXPERIMENTAL - need to add functionality to grab page count from webpage
     def update_page_count_test(self, page_count, lettre):
         try:
             cur = self.conn.cursor()
             sql_update_query = "update url_data set page_count = %s where lettre = '%s'" % (page_count, lettre)
             cur.execute(sql_update_query)
             self.conn.commit()
-            print("Record Updated successfully ")
+            print("Record Updated successfully")
             cur.close()
 
         except Error as e:
             print("Failed to update table", e)
-
 
     def cursor_iteration(self, x):
         cur = self.conn.cursor()
@@ -90,15 +116,11 @@ class sql_shit:
 
 def main():
     database = "data_dafont.db"
-    run = sql_shit()
-    run.create_connection(database)
+    run = sqlShit()
+    run.createConnection(database)
+    # run.initial_data_population()
     # run.deleteAll()
     run.update_page_count_test(23,'b')
-
-    # run.initial_data_population()
-    # run.updateTable(database)
-    # run.create_connection(database)
-
     run.getTable()
 
 
