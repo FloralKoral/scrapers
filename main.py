@@ -60,7 +60,8 @@ class scraperDafont:
         list_elem_pagenumbers = self.extract_lastpage()
         if len(list_elem_pagenumbers) == 1:
             return list_lastpage.append(1)
-            #for some reason fucks up on x which only has one page
+            #for some reason fucks up on x which only has one page but
+            #this resolves the issue for some fucking reason
 
         elif len(list_elem_pagenumbers) > 1:
             list_lastpage.append(max([int(elem.get_attribute("text").strip())
