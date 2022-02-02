@@ -19,6 +19,9 @@ xpath_div = "//div[@class='noindex']"
 xpath_lastpage_text = ".//a[contains(@href, 'alpha.php?lettre=')]"
 xpath_dl = "//a[@class='dl']"
 
+list_lastpage = []
+
+
 class scraperDafont:
     def setup_browser(self, strat):  # strat = normal (complete), eager (interactive), none (undefined)
         # BROWSWER SETUP DETAILS
@@ -48,27 +51,21 @@ class scraperDafont:
     def open_page(self, link):
         self.driver.get(link)
 
-    def list_elem_div_class(self):
-        # extract_lastpage
-        # return a list of div class elements
-        # dl_elements = self.driver.find_element(By.XPATH, xpath_div)
-        return self.driver.find_element(By.XPATH, xpath_div)
+    def extract_lastpage(self):
+        # return list of last page web elements unformatted
+        return [elem for elem in self.driver.find_element(By.XPATH, xpath_div).find_elements(By.XPATH, xpath_lastpage_text)]
 
-    #return a list of text elements
-    def list_elem_pagenumbers(self):
-        return [elem for elem in self.list_elem_div_class().find_elements(By.XPATH, xpath_lastpage_text)]
-
-    # return list of last pages for the range selected
     def list_convert_pagenumbers(self):
-        list_elem_pagenumbers = self.list_elem_pagenumbers()
+        # return list of last pages for the range selected
+        list_elem_pagenumbers = self.extract_lastpage()
         if len(list_elem_pagenumbers) == 1:
-            return self.list_lastpages.append(1)
+            return list_lastpage.append(1)
             #for some reason fucks up on x which only has one page
 
         elif len(list_elem_pagenumbers) > 1:
-            self.list_lastpages.append(max([int(elem.get_attribute("text").strip())
+            list_lastpage.append(max([int(elem.get_attribute("text").strip())
                 for elem in list_elem_pagenumbers if elem.get_attribute("text").strip() != '']))
-        return self.list_lastpages
+        return list_lastpage
 
 
 class sqlShit:
