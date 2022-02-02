@@ -21,7 +21,9 @@ xpath_dl = "//a[@class='dl']"
 
 
 
-class sqlShit():
+class sqlShit(object):
+    list_lastpage = []
+
     def createConnection(self, db_file):
         """ create a database connection to the SQLite database
             specified by the db_file
@@ -91,7 +93,8 @@ class sqlShit():
         cur.execute(sql_link_query)
         rows = cur.fetchall()
         rows = [i[0] for i in rows]
-        print(rows[0])
+        return rows[0]
+
 
     def cursor_iteration(self, x):
         cur = self.conn.cursor()
@@ -100,9 +103,8 @@ class sqlShit():
             print(row[x])
 
 
-class scraperDafont():
-    sqlshit = sqlShit()
-    list_lastpage = []
+
+
 
     def setup_browser(self, strat):  # strat = normal (complete), eager (interactive), none (undefined)
         # BROWSWER SETUP DETAILS
@@ -131,7 +133,8 @@ class scraperDafont():
 
     def open_page(self, lettre):
         #use letter from sql to get certain data points on it
-        
+        var = self.sqlshit.retrieve_lettre_page1_url(lettre)
+        self.driver.get(var)
 
     def extract_lastpage(self):
         # return list of last page web elements unformatted
@@ -159,12 +162,15 @@ class scraperDafont():
 def main():
     database = "data_dafont.db"
     run = sqlShit()
+    nur = scraperDafont()
     run.createConnection(database)
     # run.initial_data_population()
     # run.deleteAll()
     # run.update_page_count_test(23,'b')
-    run.select_link_from_lettre('a')
+    # run.select_link_from_lettre('a')
     # run.getTable()
+    nur.setup_browser("normal")
+    nur.open_page('a')
 
 
 if __name__ == '__main__':
