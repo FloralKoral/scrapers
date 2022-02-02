@@ -24,10 +24,10 @@ class sql_shit:
         :return: Connection object or None
         """
         self.conn = None
-        self.cur = None
+
         try:
             self.conn = sqlite3.connect(db_file)
-            print("Connected to SQLite")
+            print("Successfully connected to the database.")
         except Error as e:
             print("Failed to connect to database",e)
 
@@ -39,7 +39,12 @@ class sql_shit:
             cur.execute("SELECT * FROM url_data")
             print(cur.fetchall())
         except Error as e:
-            print("\nERROR:", e, "\ncheck database name or something fuck you")
+            print("\nERROR:", e, "\nCheck database name.")
+
+    def deleteAll(self):
+        cur = self.conn.cursor()
+        cur.execute('DELETE FROM url_data;')
+        print(cur.fetchall())
 
     def insertVaribleIntoTable(self, lettre=None, page1_url=None, page_count=None):
         try:
@@ -50,21 +55,30 @@ class sql_shit:
             data_tuple = (lettre, page1_url, page_count)
             cur = self.conn.cursor()
             cur.execute(sqlite_insert_with_param, data_tuple)
-            self.conn.commit()
+            # self.conn.commit()
             print("Python Variables inserted successfully into SqliteDb_developers table")
 
         except Error as e:
             print("Failed to insert Python variable into sqlite table", e)
 
-    def deleteAll(self):
-        cur = self.conn.cursor()
-        cur.execute('DELETE FROM url_data;')
-        print(cur.fetchall())
+    def initial_data_population(self):
+        #create the initial data table with page letters and page 1 urls
+        for i in range(len(keys)):
+            self.insertVaribleIntoTable(lettre=keys[i], page1_url=values[i])
+        self.conn.commit()
 
-    # def initial_data_population(self):
-    #     for i in range(len(keys)):
-    #         insertVaribleIntoTable(lettre=keys[i], page1_url=values[i])
-    #     con.commit()
+    def update_page_count_test(self):
+        try:
+            cur = self.conn.cursor()
+            sql_update_query = """update url_data set page_count = 23 where lettre = 'b'"""
+            cur.execute(sql_update_query)
+            self.conn.commit()
+            print("Record Updated successfully ")
+            cur.close()
+
+        except Error as e:
+            print("Failed to update table", e)
+
 
     def cursor_iteration(self, x):
         cur = self.conn.cursor()
@@ -75,9 +89,16 @@ class sql_shit:
 
 
 def main():
+    database = "data_dafont.db"
     run = sql_shit()
-    database = "data_dafnt.db"
     run.create_connection(database)
+    # run.deleteAll()
+    run.updatepagecount()
+
+    # run.initial_data_population()
+    # run.updateTable(database)
+    # run.create_connection(database)
+
     run.getTable()
 
 
