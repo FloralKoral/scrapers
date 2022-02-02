@@ -45,6 +45,30 @@ class scraperDafont:
         # self.vars = {}
         print("Browser configuration complete.\n")
 
+    def open_page(self, link):
+        self.driver.get(link)
+
+    def list_elem_div_class(self):
+        # extract_lastpage
+        # return a list of div class elements
+        # dl_elements = self.driver.find_element(By.XPATH, xpath_div)
+        return self.driver.find_element(By.XPATH, xpath_div)
+
+    #return a list of text elements
+    def list_elem_pagenumbers(self):
+        return [elem for elem in self.list_elem_div_class().find_elements(By.XPATH, xpath_lastpage_text)]
+
+    # return list of last pages for the range selected
+    def list_convert_pagenumbers(self):
+        list_elem_pagenumbers = self.list_elem_pagenumbers()
+        if len(list_elem_pagenumbers) == 1:
+            return self.list_lastpages.append(1)
+            #for some reason fucks up on x which only has one page
+
+        elif len(list_elem_pagenumbers) > 1:
+            self.list_lastpages.append(max([int(elem.get_attribute("text").strip())
+                for elem in list_elem_pagenumbers if elem.get_attribute("text").strip() != '']))
+        return self.list_lastpages
 
 
 class sqlShit:
