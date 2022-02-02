@@ -67,10 +67,10 @@ class sql_shit:
             self.insertVaribleIntoTable(lettre=keys[i], page1_url=values[i])
         self.conn.commit()
 
-    def update_page_count_test(self):
+    def update_page_count_test(self, page_count, lettre):
         try:
             cur = self.conn.cursor()
-            sql_update_query = """update url_data set page_count = 23 where lettre = 'b'"""
+            sql_update_query = "update url_data set page_count = %s where lettre = '%s'" % (page_count, lettre)
             cur.execute(sql_update_query)
             self.conn.commit()
             print("Record Updated successfully ")
@@ -93,7 +93,7 @@ def main():
     run = sql_shit()
     run.create_connection(database)
     # run.deleteAll()
-    run.updatepagecount()
+    run.update_page_count_test(23,'b')
 
     # run.initial_data_population()
     # run.updateTable(database)
