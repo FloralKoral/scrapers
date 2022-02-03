@@ -47,16 +47,18 @@ class sqlShit(object):
         try:
             cur = self.conn.cursor()
             cur.execute("SELECT * FROM %s" % table)
+            print("Successfully retrieved table:")
             print(cur.fetchall())
         except Error as e:
             print("\nERROR:", e, "\nCheck database name.")
 
-
-
-    def deleteAll(self):
-        cur = self.conn.cursor()
-        cur.execute('DELETE FROM url_data;')
-        print(cur.fetchall())
+    def delete_full_table(self, table):
+        try:
+            cur = self.conn.cursor()
+            cur.execute('DELETE FROM %s;' % table)
+            print("Table successfully deleted")
+        except Error as e:
+            print(e)
 
     def insertVaribleIntoTable(self, lettre=None, page1_url=None, page_count=None):
         try:
