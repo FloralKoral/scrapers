@@ -53,12 +53,19 @@ class sqlShit(object):
             print("\nERROR:", e, "\nCheck database name.")
 
     def get_full_column(self, table, column):
-        cur = self.conn.cursor()
-        sql_queery = "SELECT {} FROM {}".format(column, table)
-        cur.execute(sql_queery)
-        rows = cur.fetchall()
-        rows = [i[0] for i in rows]
-        return rows
+        # enter and retrieve a full column from a selected table
+        try:
+            cur = self.conn.cursor()
+            sql_queery = "SELECT {} FROM {}".format(column, table)
+            cur.execute(sql_queery)
+            rows = cur.fetchall()
+            rows = [i[0] for i in rows]
+            print("Column {}".format(column))
+            print(rows)
+            return rows
+
+        except Error as e:
+            print("Failed to retrieve the column, check column name in function.")
 
     def delete_full_table(self, table):
         try:
@@ -242,7 +249,7 @@ def main():
 
     #
     # run.get_full_table('url_data')
-    print(run.get_column('url_data', 'page1_url'))
+    run.get_full_column('url_data', 'page1_url')
 
 if __name__ == '__main__':
     main()
