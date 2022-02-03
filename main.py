@@ -88,7 +88,9 @@ class sqlShit(object):
         except Error as e:
             print("Failed to update table", e)
 
+
     def retrieve_lettre_page1_url(self, lettre):
+        #update this so it returns a ilst who cares
         cur = self.conn.cursor()
         sql_link_query = "select page1_url from url_data where lettre = '%s'" % (lettre)
         cur.execute(sql_link_query)
@@ -96,6 +98,22 @@ class sqlShit(object):
         rows = [i[0] for i in rows]
         return rows[0]
 
+    def retrieve_lettre_page1_url_list(self):
+        #update this so it returns a ilst who cares
+        cur = self.conn.cursor()
+        sql_link_query = "select page1_url from url_data"
+        cur.execute(sql_link_query)
+        rows = cur.fetchall()
+        rows = [i[0] for i in rows]
+        return rows
+
+    def list_lettres(self):
+        cur = self.conn.cursor()
+        sql_link_query = "select lettre from url_data"
+        cur.execute(sql_link_query)
+        rows = cur.fetchall()
+        rows = [i[0] for i in rows]
+        return rows
 
     def cursor_iteration(self, x):
         cur = self.conn.cursor()
@@ -129,16 +147,28 @@ class sqlShit(object):
         # self.vars = {}
         print("Browser configuration complete.\n")
 
-    def open_page(self, lettre):
-        #use letter from sql to get certain data points on it
-        var = self.retrieve_lettre_page1_url(lettre)
-        self.driver.get(var)
+    def extract_lastpage_updatetable(self, link):
 
-    def extract_lastpage(self, lettre):
+        cur = self.conn.cursor()
+        # this is an initial run anyway so I don't think it'll matter. Can add functionality to check shit
+        # later
+        #use letter from sql to get certain data points on it
+        # this is ass backwards and stupid but I don't care
+        sql_link_query = "select lettre from url_data where page1_url = '%s'" % (link)
+        cur.execute(sql_link_query)
+        rows = cur.fetchall()
+        rows = [i[0] for i in rows]
+        return rows
+
+        var = self.retrieve_lettre_page1_url()
+        self.driver.get(link)
+
+        # component that updates the table will likely need to be moved to separate def that checks
+        # if the last page extracted is greater than what already exists in the table but we will
+        # let this slide for now fuck it
+        # figure out a way to set this object to be passed from the previous definition
         xpath_div_var = self.driver.find_element(By.XPATH, xpath_div)
         xpath_lastpage_text_var = [elem for elem in xpath_div_var.find_elements(By.XPATH, xpath_lastpage_text)]
-
-
 
         if len(xpath_lastpage_text_var) == 1:
             self.update_page_count_test(1, lettre)
@@ -156,39 +186,27 @@ class sqlShit(object):
 
 
 
-    def list_convert_pagenumbers(self):
-        # return list of last pages for the range selected
-        list_elem_pagenumbers = self.extract_lastpage()
-        if len(list_elem_pagenumbers) == 1:
-            self.update_page_count_test()
-            return self.list_lastpage.append(1)
-
-            #for some reason fucks up on x which only has one page but
-            #this resolves the issue for some fucking reason
-
-        elif len(list_elem_pagenumbers) > 1:
-            self.list_lastpage.append(max([int(elem.get_attribute("text").strip())
-                for elem in list_elem_pagenumbers if elem.get_attribute("text").strip() != '']))
-        return self.list_lastpage
-
-
 
 
 
 def main():
     database = "data_dafont.db"
-    lettre = 'a'
     run = sqlShit()
     run.createConnection(database)
+
+    run.setup_browser("normal")
+    for i in run.retrieve_lettre_page1_url_list():
+        run.extract_lastpage_updatetable(i)
+
+
     # run.initial_data_population()
     # run.deleteAll()
     # run.update_page_count_test(23,'b')
     # run.select_link_from_lettre('a')
     # run.getTable()
-    run.setup_browser("normal")
-    run.open_page(lettre)
-    run.extract_lastpage(lettre)
-    run.getTable()
+
+    #
+    # run.getTable()
 
 if __name__ == '__main__':
     main()
