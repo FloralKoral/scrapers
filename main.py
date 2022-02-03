@@ -26,7 +26,7 @@ xpath_dl = "//a[@class='dl']"
 config = configparser.ConfigParser()
 
 class sqlShit(object):
-    list_lastpage = []
+
 
     def create_connection(self, db_file):
         """ create a database connection to the SQLite database
@@ -95,11 +95,7 @@ class sqlShit(object):
         except Error as e:
             print("Failed to insert Python variable into sqlite table", e)
 
-    def initialDataPopulation(self):
-        #create the initial data table with page letters and page 1 urls
-        for i in range(len(keys)):
-            self.insertVaribleIntoTable(lettre=keys[i], page1_url=values[i])
-        self.conn.commit()
+
 
     # EXPERIMENTAL - need to add functionality to grab page count from webpage
     def update_page_count_test(self, page_count, lettre):
@@ -273,9 +269,15 @@ if __name__ == '__main__':
 
 
 
+# DUST BIN OF HISTORY
 
-
-
+# don't do this shit, just manually create it using an sql queery with shit generated from
+# excel to save time
+# def initialDataPopulation(self):
+#     #create the initial data table with page letters and page 1 urls
+#     for i in range(len(keys)):
+#         self.insertVaribleIntoTable(lettre=keys[i], page1_url=values[i])
+#     self.conn.commit()
 
 
 
