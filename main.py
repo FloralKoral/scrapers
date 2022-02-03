@@ -27,7 +27,7 @@ config = configparser.ConfigParser()
 
 class sqlShit(object):
 
-
+    # GENERAL SQL FUNCTIONS
     def create_connection(self, db_file):
         """ create a database connection to the SQLite database
             specified by the db_file
@@ -80,8 +80,9 @@ class sqlShit(object):
         except Error as e:
             print(e)
 
+    # URL_DATA TABLE SPECIFIC FUNCTIONS
 
-
+    # DL_DATA TABLE SPECIFIC FUNCTIONS
 
 
     # EXPERIMENTAL - need to add functionality to grab page count from webpage
