@@ -44,7 +44,7 @@ class sqlShit(object):
     def create_dl_link_table(self):
         cur = self.conn.cursor()
         sqlquery = "create table dl_data (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z)" #CHAR(37)+ 23)"
-        sqlquery2 = "ALTER TABLE dl_data ADD \%23''
+        sqlquery2 = "ALTER TABLE dl_data ADD \%23'
         cur.execute(sqlquery2)
 
 
