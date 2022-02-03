@@ -50,6 +50,7 @@ class sqlShit(object):
             cur.execute(sql_queery)
             print("Successfully retrieved table:")
             print(cur.fetchall())
+            return cur.fetchall()
         except Error as e:
             print("\nERROR:", e, "\nCheck database name.")
 
@@ -61,7 +62,7 @@ class sqlShit(object):
             cur.execute(sql_queery)
             rows = cur.fetchall()
             rows = [i[0] for i in rows]
-            print("Column {}".format(column))
+            print("Successfully retrieved column {}:".format(column))
             print(rows)
             return rows
 
