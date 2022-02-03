@@ -55,6 +55,8 @@ class sqlShit(object):
             print("\nERROR:", e, "\nCheck database name.")
 
     def get_full_column(self, table, column):
+        # returns a list that can be iterated through in other functions for efficiency
+        # probably make that a sub function of this one for iterable actions
         # enter and retrieve a full column from a selected table
         try:
             cur = self.conn.cursor()
@@ -72,28 +74,13 @@ class sqlShit(object):
     def delete_full_table(self, table):
         try:
             cur = self.conn.cursor()
-            cur.execute('DELETE FROM %s;' % table)
+            sql_queery = "DELETE FROM {}".format(table)
+            cur.execute(sql_queery)
             print("Table successfully deleted")
         except Error as e:
             print(e)
 
 
-        # print(cur.execute(sql_queery))
-
-    def insertVaribleIntoTable(self, lettre=None, page1_url=None, page_count=None):
-        try:
-            sqlite_insert_with_param = """INSERT INTO url_data
-                              (lettre, page1_url, page_count) 
-                              VALUES (?, ?, ?);"""
-
-            data_tuple = (lettre, page1_url, page_count)
-            cur = self.conn.cursor()
-            cur.execute(sqlite_insert_with_param, data_tuple)
-            # self.conn.commit()
-            print("Python Variables inserted successfully into SqliteDb_developers table")
-
-        except Error as e:
-            print("Failed to insert Python variable into sqlite table", e)
 
 
 
@@ -209,8 +196,6 @@ class sqlShit(object):
             max_page = max(page_ints) #returns max of the list
             self.update_page_count_test(max_page, lettre)
 
-    def create_lettre_table(self):
-        pass
 
     def check_page_size(self):
         pass
@@ -280,5 +265,22 @@ if __name__ == '__main__':
 #     self.conn.commit()
 
 
-
+# PLEASE STOP DOING THIS SHIT. Literally just create the shit manually and populate from there, not
+# everything needs to be coded in Python for this to work or for me to be satisfied. Just like tracing
+# as a base for a drawing. There is no shame in manual setup.
+    #
+    # def insertVaribleIntoTable(self, lettre=None, page1_url=None, page_count=None):
+    #     try:
+    #         sqlite_insert_with_param = """INSERT INTO url_data
+    #                           (lettre, page1_url, page_count)
+    #                           VALUES (?, ?, ?);"""
+    #
+    #         data_tuple = (lettre, page1_url, page_count)
+    #         cur = self.conn.cursor()
+    #         cur.execute(sqlite_insert_with_param, data_tuple)
+    #         # self.conn.commit()
+    #         print("Python Variables inserted successfully into SqliteDb_developers table")
+    #
+    #     except Error as e:
+    #         print("Failed to insert Python variable into sqlite table", e)
 
