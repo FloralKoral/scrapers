@@ -158,10 +158,11 @@ class sqlShit(object):
         cur.execute(sql_link_query)
         rows = cur.fetchall()
         rows = [i[0] for i in rows]
-        return rows
+        lettre = rows
 
-        var = self.retrieve_lettre_page1_url()
+        # var = self.retrieve_lettre_page1_url()
         self.driver.get(link)
+        print("Opening page one of letter: {}".format(lettre))
 
         # component that updates the table will likely need to be moved to separate def that checks
         # if the last page extracted is greater than what already exists in the table but we will
@@ -172,6 +173,7 @@ class sqlShit(object):
 
         if len(xpath_lastpage_text_var) == 1:
             self.update_page_count_test(1, lettre)
+
             # return self.list_lastpage.append(1)
 
             #for some reason fucks up on x which only has one page but
@@ -198,7 +200,7 @@ def main():
     for i in run.retrieve_lettre_page1_url_list():
         run.extract_lastpage_updatetable(i)
 
-
+    run.getTable()
     # run.initial_data_population()
     # run.deleteAll()
     # run.update_page_count_test(23,'b')
