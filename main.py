@@ -28,36 +28,30 @@ config = configparser.ConfigParser()
 class sqlShit(object):
     list_lastpage = []
 
-    def createConnection(self, db_file):
+    def create_connection(self, db_file):
         """ create a database connection to the SQLite database
             specified by the db_file
         :param db_file: database file
         :return: Connection object or None
         """
         self.conn = None
-
         try:
             self.conn = sqlite3.connect(db_file)
             print("Successfully connected to the database.")
         except Error as e:
-            print("Failed to connect to database",e)
+            print("Failed to connect to database", e)
 
         return self.conn
 
-    def create_dl_link_table(self):
-        cur = self.conn.cursor()
-        sqlquery = "create table dl_data (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z)" #CHAR(37)+ 23)"
-        # sqlquery2 = "ALTER TABLE dl_data ADD \%23'
-        # cur.execute(sqlquery2)
-
-
-    def getTable(self):
+    def get_full_table(self, table):
         try:
             cur = self.conn.cursor()
-            cur.execute("SELECT * FROM url_data")
+            cur.execute("SELECT * FROM %s" % table)
             print(cur.fetchall())
         except Error as e:
             print("\nERROR:", e, "\nCheck database name.")
+
+
 
     def deleteAll(self):
         cur = self.conn.cursor()
@@ -97,6 +91,8 @@ class sqlShit(object):
 
         except Error as e:
             print("Failed to update table", e)
+
+
 
 
     def retrieve_lettre_page1_url(self, lettre):
@@ -204,43 +200,18 @@ class sqlShit(object):
 
 
 def main():
-    for i in range(len(keys)):
-        print("{}={},".format(keys[i], values[i]))
+    # for i in range(len(keys)):
+    #     print("{}={},".format(keys[i], values[i]))
         # print("\'{}\':\'{}\',".format(keys[i],values[i]))
 
-    # config['page1_urls']={
-    #     'a': 'https://www.dafont.com/alpha.php?lettre=a&page=1&fpp=200',
-    #     'b': 'https://www.dafont.com/alpha.php?lettre=b&page=1&fpp=200',
-    #     'c': 'https://www.dafont.com/alpha.php?lettre=c&page=1&fpp=200',
-    #     'd': 'https://www.dafont.com/alpha.php?lettre=d&page=1&fpp=200',
-    #     'e': 'https://www.dafont.com/alpha.php?lettre=e&page=1&fpp=200',
-    #     'f': 'https://www.dafont.com/alpha.php?lettre=f&page=1&fpp=200',
-    #     'g': 'https://www.dafont.com/alpha.php?lettre=g&page=1&fpp=200',
-    #     'h': 'https://www.dafont.com/alpha.php?lettre=h&page=1&fpp=200',
-    #     'i': 'https://www.dafont.com/alpha.php?lettre=i&page=1&fpp=200',
-    #     'j': 'https://www.dafont.com/alpha.php?lettre=j&page=1&fpp=200',
-    #     'k': 'https://www.dafont.com/alpha.php?lettre=k&page=1&fpp=200',
-    #     'l': 'https://www.dafont.com/alpha.php?lettre=l&page=1&fpp=200',
-    #     'm': 'https://www.dafont.com/alpha.php?lettre=m&page=1&fpp=200',
-    #     'n': 'https://www.dafont.com/alpha.php?lettre=n&page=1&fpp=200',
-    #     'o': 'https://www.dafont.com/alpha.php?lettre=o&page=1&fpp=200',
-    #     'p': 'https://www.dafont.com/alpha.php?lettre=p&page=1&fpp=200',
-    #     'q': 'https://www.dafont.com/alpha.php?lettre=q&page=1&fpp=200',
-    #     'r': 'https://www.dafont.com/alpha.php?lettre=r&page=1&fpp=200',
-    #     's': 'https://www.dafont.com/alpha.php?lettre=s&page=1&fpp=200',
-    #     't': 'https://www.dafont.com/alpha.php?lettre=t&page=1&fpp=200',
-    #     'u': 'https://www.dafont.com/alpha.php?lettre=u&page=1&fpp=200',
-    #     'v': 'https://www.dafont.com/alpha.php?lettre=v&page=1&fpp=200',
-    #     'w': 'https://www.dafont.com/alpha.php?lettre=w&page=1&fpp=200',
-    #     'x': 'https://www.dafont.com/alpha.php?lettre=x&page=1&fpp=200',
-    #     'y': 'https://www.dafont.com/alpha.php?lettre=y&page=1&fpp=200',
-    #     'z': 'https://www.dafont.com/alpha.php?lettre=z&page=1&fpp=200',
-    #     '%23': 'https://www.dafont.com/alpha.php?lettre=%23&page=1&fpp=200',
-    # }
+    # f = config.read("config.ini")
 
-    # database = "data_dafont.db"
-    # run = sqlShit()
-    # run.createConnection(database)
+
+
+    database = "data_dafont.db"
+    run = sqlShit()
+    run.create_connection(database)
+
     # run.create_dl_link_table()
     # print(','.join(keys))
 #
@@ -257,7 +228,7 @@ def main():
     # run.getTable()
 
     #
-    # run.getTable()
+    run.get_full_table('url_data')
 
 if __name__ == '__main__':
     main()
