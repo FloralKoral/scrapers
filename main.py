@@ -41,6 +41,13 @@ class sqlShit(object):
 
         return self.conn
 
+    def create_dl_link_table(self):
+        cur = self.conn.cursor()
+        sqlquery = "create table dl_data (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z)" #CHAR(37)+ 23)"
+        sqlquery2 = "ALTER TABLE dl_data ADD \%23''
+        cur.execute(sqlquery2)
+
+
     def getTable(self):
         try:
             cur = self.conn.cursor()
@@ -158,7 +165,7 @@ class sqlShit(object):
         cur.execute(sql_link_query)
         rows = cur.fetchall()
         rows = [i[0] for i in rows]
-        lettre = rows
+        lettre = rows[0]
 
         # var = self.retrieve_lettre_page1_url()
         self.driver.get(link)
@@ -185,9 +192,11 @@ class sqlShit(object):
             max_page = max(page_ints) #returns max of the list
             self.update_page_count_test(max_page, lettre)
 
+    def create_lettre_table(self):
+        pass
 
-
-
+    def check_page_size(self):
+        pass
 
 
 
@@ -195,12 +204,15 @@ def main():
     database = "data_dafont.db"
     run = sqlShit()
     run.createConnection(database)
+    run.create_dl_link_table()
+    # print(','.join(keys))
+#
+#     run.setup_browser("normal")
+#     for i in run.retrieve_lettre_page1_url_list():
+#         run.extract_lastpage_updatetable(i)
+#
+#     run.getTable()
 
-    run.setup_browser("normal")
-    for i in run.retrieve_lettre_page1_url_list():
-        run.extract_lastpage_updatetable(i)
-
-    run.getTable()
     # run.initial_data_population()
     # run.deleteAll()
     # run.update_page_count_test(23,'b')
