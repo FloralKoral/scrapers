@@ -46,7 +46,8 @@ class sqlShit(object):
     def get_full_table(self, table):
         try:
             cur = self.conn.cursor()
-            cur.execute("SELECT * FROM %s" % table)
+            sql_queery = "SELECT * FROM {}".format(table)
+            cur.execute(sql_queery)
             print("Successfully retrieved table:")
             print(cur.fetchall())
         except Error as e:
@@ -248,7 +249,7 @@ def main():
     # run.getTable()
 
     #
-    # run.get_full_table('url_data')
+    run.get_full_table('url_data')
     run.get_full_column('url_data', 'page1_url')
 
 if __name__ == '__main__':
