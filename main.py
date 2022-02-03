@@ -81,6 +81,9 @@ class sqlShit(object):
             print(e)
 
     def get_page_count_by_letter(self, lettre):
+        # url_data data retrieval - returns the page count of the entered letter
+        # use this as a comparitor (however the fuck you spell that) variable when checking pages
+        # on reruns to rescrape the site for new shit
         try:
             cur = self.conn.cursor()
             sql_queery = "select page_count from url_data where lettre = '%s'" % lettre
@@ -91,7 +94,9 @@ class sqlShit(object):
             print("Successfully retrieved page count for lettre {}: {}".format(lettre, rows))
             return rows
         except Error as e:
-            print(e)
+            print("ERROR: " + str(e))
+    
+
 
 
 
