@@ -80,7 +80,18 @@ class sqlShit(object):
         except Error as e:
             print(e)
 
-
+    def get_page_count_by_letter(self, lettre):
+        try:
+            cur = self.conn.cursor()
+            sql_queery = "select page_count from url_data where lettre = '%s'" % lettre
+            cur.execute(sql_queery)
+            rows = cur.fetchall()
+            rows = [i[0] for i in rows]
+            rows = rows[0]
+            print("Successfully retrieved page count for lettre {}: {}".format(lettre, rows))
+            return rows
+        except Error as e:
+            print(e)
 
 
 
@@ -233,6 +244,7 @@ def main():
     #
     run.get_full_table('url_data')
     run.get_full_column('url_data', 'page1_url')
+    run.get_page_count_by_letter('a')
 
 if __name__ == '__main__':
     main()
