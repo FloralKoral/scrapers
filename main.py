@@ -52,6 +52,14 @@ class sqlShit(object):
         except Error as e:
             print("\nERROR:", e, "\nCheck database name.")
 
+    def get_full_column(self, table, column):
+        cur = self.conn.cursor()
+        sql_queery = "SELECT {} FROM {}".format(column, table)
+        cur.execute(sql_queery)
+        rows = cur.fetchall()
+        rows = [i[0] for i in rows]
+        return rows
+
     def delete_full_table(self, table):
         try:
             cur = self.conn.cursor()
@@ -59,6 +67,9 @@ class sqlShit(object):
             print("Table successfully deleted")
         except Error as e:
             print(e)
+
+
+        # print(cur.execute(sql_queery))
 
     def insertVaribleIntoTable(self, lettre=None, page1_url=None, page_count=None):
         try:
@@ -230,7 +241,8 @@ def main():
     # run.getTable()
 
     #
-    run.get_full_table('url_data')
+    # run.get_full_table('url_data')
+    print(run.get_column('url_data', 'page1_url'))
 
 if __name__ == '__main__':
     main()
