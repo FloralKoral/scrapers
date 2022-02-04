@@ -64,6 +64,12 @@ class sqlShit():
 
         return self.conn
 
+    def get_all_table_names(self):
+        cur = self.conn.cursor()
+        sql_queery = "SELECT name FROM sqlite_master WHERE type='table';"
+        cur.execute(sql_queery)
+        print(cur.fetchall())
+
     def get_full_table(self, table):
         try:
             cur = self.conn.cursor()
@@ -200,7 +206,9 @@ class sqlShit():
             self.update_page_count(lettre, max_page)
 
 
-
+    # OOF DL DATA WILL NEED TO BE SPLIT UP INTO TABLES FOR EACH LETTER SO THAT I CAN TRACK PAGE NUMBER, DL LINK, AND IF
+    # I ACTUALLY DOWNLOADED IT OR IF I JUST SCRAPED THE VALUES TO BE DOWNLOADED LATER, MAYBE ADD OBJECT TO TELL IT TO
+    # SCRAPE VS DOWNLOAD
     # DL_DATA TABLE SPECIFIC FUNCTIONS
     def update_by_column(self, lettre_var, dl_str):
         #general function to update dl_data table by column letter
@@ -216,12 +224,12 @@ class sqlShit():
         cur.execute(sql_queery)
         data = cur.fetchall()
         if len(data) == 0:
-            print('There is no component named %s' % name)
+            print("this shit wasn't found")
         else:
-            print('Component %s found with rowids %s
+            print("this shit already exists")
 
     def TESTING_get_dl_urls_update_table(self):
-        lettre = 'a'
+        lettre = '\%23'
         pagenum = '2'
         link = 'https://www.dafont.com/alpha.php?lettre=a&page=2&fpp=200'
         self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=False)
@@ -238,8 +246,14 @@ class sqlShit():
     def test(self):
         print(config['baselink']['dafont_dl'].format(""))
 
-
-
+    # OOF DL DATA WILL NEED TO BE SPLIT UP INTO TABLES FOR EACH LETTER SO THAT I CAN TRACK PAGE NUMBER, DL LINK, AND IF
+    # I ACTUALLY DOWNLOADED IT OR IF I JUST SCRAPED THE VALUES TO BE DOWNLOADED LATER, MAYBE ADD OBJECT TO TELL IT TO
+    # SCRAPE VS DOWNLOAD
+    def create_letter_tables_1_off(self):
+        # for let_var in self.list_lettre():
+        cur = self.conn.cursor()
+            # sql_queery = "CREATE TABLE {} (dl_key, page_num, file_saved)".format(let_var)
+        #     cur.execute(sql_queery)
 
 
 
@@ -257,7 +271,7 @@ def main():
     run.create_connection(database)
     # run.test()
     # run.delete_table_rows('dl_data')
-    run.TESTING_get_dl_urls_update_table()
+    run.create_letter_tables_1_off()
     # run.get_full_column('url_data', 'page1_url')
 
     # run.get_page_count_by_lettre(lettre=let_var)
