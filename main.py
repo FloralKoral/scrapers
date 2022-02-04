@@ -26,6 +26,12 @@ values = [url_dafont.format(values, '1') for values in keys]
 
 
 class sqlShit():
+    # PICKLE SHIT
+    # create function to pickle dump shit and clear a pickle file, use this to document when there are
+    # updates to page count so we can go in and check if there are any to which the code will pull download
+    # links according to letters that had changes so the entire website doesn't need to be scanned
+
+
     # BROWSER SPECIFIC FUNCTIONS
     def setup_browser(self, strat, dl_location):  # strat = normal (complete), eager (interactive), none (undefined)
         # BROWSWER SETUP DETAILS
@@ -125,24 +131,30 @@ class sqlShit():
         except Error as e:
             print("ERROR: " + str(e))
 
+
+
+
     def update_page_count(self, lettre, update_var):
         try:
             #uhhhhh I have no clue if this will work and if it does I don't know why lol
             let_var, page_count = self.get_page_count_by_lettre(lettre)
             cur = self.conn.cursor()
+
             if update_var == page_count:
-                print("No changes detected in page count since last run")
+                print("No changes detected in page count since last run.")
+
             elif update_var > page_count:
                 print("Change detected. Updating...")
                 sql_update_query = "update url_data set page_count = %s where lettre = '%s'" % (
-                update_var, let_var)  # page_count
+                    update_var, let_var)  # page_count
                 cur.execute(sql_update_query)
                 self.conn.commit()
                 print("Record Updated successfully")
+
             cur.close()
 
         except Error as e:
-            print("Failed to update table", e)
+            print("Failed to update table.", e)
 
 
     # DL_DATA TABLE SPECIFIC FUNCTIONS
@@ -239,7 +251,7 @@ def main():
     # run.get_full_column('url_data', 'page1_url')
 
     # run.get_page_count_by_lettre(lettre=let_var)
-    run.update_page_count_test(lettre=let_var, update_var=23)
+    run.update_page_count(lettre=let_var, update_var=23)
     run.get_full_table(table='url_data')
 
 if __name__ == '__main__':
