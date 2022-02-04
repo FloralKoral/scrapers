@@ -209,18 +209,24 @@ class sqlShit():
         link = 'https://www.dafont.com/alpha.php?lettre=a&page=2&fpp=200'
         self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=False)
         self.driver.get(link)
-        xpath_dl_var = [elem for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem']))]
-        print(xpath_dl_var)
+        # look list comprehensions are cool but can both of these be taken care of at the same time?
 
-        dl_urls = [elem.get_attribute("href") for elem in xpath_dl_var]
-        print(dl_urls)
+        for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem'])):
+            dl_urls = elem.get_attribute("href").replace(config['baselink']['dafont_dl'].format(""), "")
+
+        # xpath_dl_var = [elem for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem']))]
+        #
+        #
+        # dl_urls = [elem.get_attribute("href").replace(config['baselink']['dafont_dl'].format(""),"") for elem in xpath_dl_var]
+            print(dl_urls)
     # DL_DATA TABLE SPECIFIC FUNCTIONS
 
 
 
     # EXPERIMENTAL/GRAVEYARD FOR REMOVAL - need to add functionality to grab page count from webpage
 
-
+    def test(self):
+        print(config['baselink']['dafont_dl'].format(""))
 
 
 
@@ -239,6 +245,7 @@ def main():
     run = sqlShit()
     let_var = 'a'
     run.create_connection(database)
+    # run.test()
     run.TESTING_get_dl_urls_update_table()
     # run.get_full_column('url_data', 'page1_url')
 
