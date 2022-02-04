@@ -13,6 +13,8 @@ from sqlite3 import Error
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+options = webdriver.ChromeOptions()
+
 headless = True
 # DATA
 url_dafont = 'https://www.dafont.com/alpha.php?lettre={}&page={}&fpp=200'
@@ -32,7 +34,7 @@ class sqlShit:
                  }
 
         # OPTIONS
-        options = webdriver.ChromeOptions()
+
         options.add_experimental_option("prefs", prefs)
         options.headless = headless
 
@@ -45,7 +47,6 @@ class sqlShit:
 
         self.driver = webdriver.Chrome(desired_capabilities=caps, service=service, options=options)
         self.driver.create_options()
-        # self.vars = {}
         print("Browser configuration complete.\n")
 
     # GENERAL SQL FUNCTIONS
