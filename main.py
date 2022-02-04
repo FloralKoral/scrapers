@@ -13,7 +13,7 @@ config.read('config.ini')
 
 
 
-headless = True
+
 
 class sqlShit():
     # PICKLE SHIT
@@ -23,7 +23,7 @@ class sqlShit():
 
 
     # BROWSER SPECIFIC FUNCTIONS
-    def setup_browser(self, strat, dl_location):  # strat = normal (complete), eager (interactive), none (undefined)
+    def setup_browser(self, strat, dl_location, headless):  # strat = normal (complete), eager (interactive), none (undefined)
         # BROWSWER SETUP DETAILS
         # initiate with config file reference for dl_location as to make this more usable for other websites
         # PREFERENCES - set preferences for options of browser
@@ -171,7 +171,7 @@ class sqlShit():
             print("Failed to update table.", e)
 
 
-    def extract_lastpage_updatetable(self,lettre):
+    def extract_lastpage_update_table(self,lettre):
         # function to get page count from webpage
         # cur = self.conn.cursor()
         # this is an initial run anyway so I don't think it'll matter. Can add functionality to check shit
@@ -179,7 +179,7 @@ class sqlShit():
         #use letter from sql to get certain data points on it
         # this is ass backwards and stupid but I don't care
         let_var2, page1_var2 = self.get_page1_url_by_lettre(lettre)
-        self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'])
+        self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
         # var = self.retrieve_lettre_page1_url()
         self.driver.get(page1_var2)
         print("Opening page one of letter: {}".format(let_var2))
@@ -200,13 +200,19 @@ class sqlShit():
             self.update_page_count(lettre, max_page)
 
 
-    def open_urls_by_letter(self,lettre, page_num_var):
+    def open_urls_by_lettre(self,lettre, page_num_var):
         print(config['baselink']['dafont'].format("a",1))
 
 
 
+    def TESTING_get_dl_urls_update_table(self):
+        link = 'https://www.dafont.com/alpha.php?lettre=a&page=2&fpp=200'
+        self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=False)
+        self.driver.get(link)
 
     # DL_DATA TABLE SPECIFIC FUNCTIONS
+
+
 
     # EXPERIMENTAL/GRAVEYARD FOR REMOVAL - need to add functionality to grab page count from webpage
 
@@ -229,13 +235,13 @@ def main():
     run = sqlShit()
     let_var = 'a'
     run.create_connection(database)
-
+    run.TESTING_get_dl_urls_update_table()
     # run.get_full_column('url_data', 'page1_url')
 
     # run.get_page_count_by_lettre(lettre=let_var)
-    run.extract_lastpage_updatetable(lettre=let_var)
+    # run.extract_lastpage_update_table(lettre=let_var)
     # run.get_full_table(table='url_data')
-    run.open_urls_by_letter()
+    # run.open_urls_by_lettre()
 
 if __name__ == '__main__':
     main()
