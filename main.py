@@ -209,7 +209,7 @@ class sqlShit():
     # OOF DL DATA WILL NEED TO BE SPLIT UP INTO TABLES FOR EACH LETTER SO THAT I CAN TRACK PAGE NUMBER, DL LINK, AND IF
     # I ACTUALLY DOWNLOADED IT OR IF I JUST SCRAPED THE VALUES TO BE DOWNLOADED LATER, MAYBE ADD OBJECT TO TELL IT TO
     # SCRAPE VS DOWNLOAD
-    # DL_DATA TABLE SPECIFIC FUNCTIONS
+    # LETTRE TABLE SPECIFIC FUNCTIONS
     def update_by_column(self, lettre_var, dl_str):
         #general function to update dl_data table by column letter
         cur = self.conn.cursor()
