@@ -1,16 +1,17 @@
-import pickle
+# IMPORTS
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from string import ascii_lowercase
-import os
 import configparser
 import sqlite3
 from sqlite3 import Error
 
 # OKAY HEAR ME OUT. JUST USE CONFIG FILES
 # Like, seriously fuck it, who cares, you can learn sql later.
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 headless = True
 # DATA
@@ -18,14 +19,34 @@ url_dafont = 'https://www.dafont.com/alpha.php?lettre={}&page={}&fpp=200'
 keys = [ascii for ascii in ascii_lowercase] + ['%23']
 values = [url_dafont.format(values, '1') for values in keys]
 
-# dafont - page text vars
-xpath_div = "//div[@class='noindex']"
-xpath_lastpage_text = ".//a[contains(@href, 'alpha.php?lettre=')]" #working version
-xpath_dl = "//a[@class='dl']"
 
-config = configparser.ConfigParser()
+class sqlShit:
+    # BROWSER SPECIFIC FUNCTIONS
+    def setup_browser(self, strat, dl_location):  # strat = normal (complete), eager (interactive), none (undefined)
+        # BROWSWER SETUP DETAILS
+        # initiate with config file reference for dl_location as to make this more usable for other websites
+        # PREFERENCES - set preferences for options of browser
+        prefs = {"download.default_directory": dl_location,
+                 'profile.default_content_setting_values.automatic_downloads': 1,
+                 "excludeSwitches": ["test-type", "enable-automation"]
+                 }
 
-class sqlShit(object):
+        # OPTIONS
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option("prefs", prefs)
+        options.headless = headless
+
+        # SERVICE
+        service = Service(r'D:\Code\Chromedriver\chromedriver.exe')
+
+        # CAPABILITIES - set how long driver waits
+        caps = DesiredCapabilities().CHROME
+        caps["pageLoadStrategy"] = strat  # see above choices
+
+        self.driver = webdriver.Chrome(desired_capabilities=caps, service=service, options=options)
+        self.driver.create_options()
+        # self.vars = {}
+        print("Browser configuration complete.\n")
 
     # GENERAL SQL FUNCTIONS
     def create_connection(self, db_file):
@@ -102,7 +123,8 @@ class sqlShit(object):
 
 
 
-    # EXPERIMENTAL - need to add functionality to grab page count from webpage
+
+    # EXPERIMENTAL/GRAVEYARD FOR REMOVAL - need to add functionality to grab page count from webpage
     def update_page_count_test(self, page_count, lettre):
         try:
             cur = self.conn.cursor()
@@ -114,9 +136,6 @@ class sqlShit(object):
 
         except Error as e:
             print("Failed to update table", e)
-
-
-
 
     def retrieve_lettre_page1_url(self, lettre):
         #update this so it returns a ilst who cares
@@ -151,30 +170,7 @@ class sqlShit(object):
             print(row[x])
 
 
-    def setup_browser(self, strat):  # strat = normal (complete), eager (interactive), none (undefined)
-        # BROWSWER SETUP DETAILS
-        # PREFERENCES - set preferences for options of browser
-        prefs = {"download.default_directory": r"D:\Brushes\00_UPTAKE\00_FONTSPACE_FONTS",
-                 'profile.default_content_setting_values.automatic_downloads': 1,
-                 "excludeSwitches": ["test-type", "enable-automation"]
-                 }
 
-        # OPTIONS
-        options = webdriver.ChromeOptions()
-        options.add_experimental_option("prefs", prefs)
-        options.headless = headless
-
-        # SERVICE
-        service = Service(r'D:\Code\Chromedriver\chromedriver.exe')
-
-        # CAPABILITIES - set how long driver waits
-        caps = DesiredCapabilities().CHROME
-        caps["pageLoadStrategy"] = strat  # see above choices
-
-        self.driver = webdriver.Chrome(desired_capabilities=caps, service=service, options=options)
-        self.driver.create_options()
-        # self.vars = {}
-        print("Browser configuration complete.\n")
 
     def extract_lastpage_updatetable(self, link):
 
@@ -197,8 +193,11 @@ class sqlShit(object):
         # if the last page extracted is greater than what already exists in the table but we will
         # let this slide for now fuck it
         # figure out a way to set this object to be passed from the previous definition
-        xpath_div_var = self.driver.find_element(By.XPATH, xpath_div)
-        xpath_lastpage_text_var = [elem for elem in xpath_div_var.find_elements(By.XPATH, xpath_lastpage_text)]
+        # ADD FUNCTIONALITY TO REFERENCE CONFIG FILE HERE
+
+        xpath_div_var = self.driver.find_element(By.XPATH, config['xpaths_dafont']['main_page_elem'])
+        xpath_lastpage_text_var = [elem for elem in xpath_div_var.find_elements(By.XPATH,
+                                                                                config['xpaths_dafont']['sub_page_elem'])]
 
         if len(xpath_lastpage_text_var) == 1:
             self.update_page_count_test(1, lettre)
@@ -221,54 +220,17 @@ class sqlShit(object):
 
 
 def main():
-    # for i in range(len(keys)):
-    #     print("{}={},".format(keys[i], values[i]))
-        # print("\'{}\':\'{}\',".format(keys[i],values[i]))
-
-    # f = config.read("config.ini")
-
-
-
     database = "data_dafont.db"
     run = sqlShit()
     run.create_connection(database)
-
-    # run.create_dl_link_table()
-    # print(','.join(keys))
-#
-#     run.setup_browser("normal")
-#     for i in run.retrieve_lettre_page1_url_list():
-#         run.extract_lastpage_updatetable(i)
-#
-#     run.getTable()
-
-    # run.initial_data_population()
-    # run.deleteAll()
-    # run.update_page_count_test(23,'b')
-    # run.select_link_from_lettre('a')
-    # run.getTable()
-
-    #
     run.get_full_table('url_data')
     run.get_full_column('url_data', 'page1_url')
     run.get_page_count_by_letter('a')
 
+
 if __name__ == '__main__':
     main()
 
-
-#
-
-# cur.execute("create table url_data (lettre, page1_url, page_count)")
-
-# for i in range(len(keys)):
-#     cur.execute("INSERT INTO url_data (lettre, page1_url) VALUES (?, ?)", (keys[i], values[i]))
-# con.commit()
-
-# cur.execute("insert into url_data (lettre) values ('cum')")
-#
-# for row in cur.execute('SELECT page1_url FROM url_data'):
-#         print(row)
 
 
 
@@ -303,3 +265,22 @@ if __name__ == '__main__':
     #     except Error as e:
     #         print("Failed to insert Python variable into sqlite table", e)
 
+    # for i in range(len(keys)):
+    #     print("{}={},".format(keys[i], values[i]))
+        # print("\'{}\':\'{}\',".format(keys[i],values[i]))
+
+    # f = config.read("config.ini")
+
+
+#
+
+# cur.execute("create table url_data (lettre, page1_url, page_count)")
+
+# for i in range(len(keys)):
+#     cur.execute("INSERT INTO url_data (lettre, page1_url) VALUES (?, ?)", (keys[i], values[i]))
+# con.commit()
+
+# cur.execute("insert into url_data (lettre) values ('cum')")
+#
+# for row in cur.execute('SELECT page1_url FROM url_data'):
+#         print(row)
