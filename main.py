@@ -102,6 +102,14 @@ class sqlShit():
         except Error as e:
             print("Failed to retrieve the column, check column name in function.")
 
+    def list_lettre(self):
+        cur = self.conn.cursor()
+        sql_link_queery = "select lettre from url_data"
+        cur.execute(sql_link_queery)
+        rows = cur.fetchall()
+        rows = [i[0] for i in rows]
+        return rows
+
     def delete_full_table(self, table):
         try:
             cur = self.conn.cursor()
@@ -118,7 +126,7 @@ class sqlShit():
         # ...on reruns to rescrape the site for new shit
         try:
             cur = self.conn.cursor()
-            sql_queery = "select page_count from url_data where lettre = '%s'" % lettre
+            sql_queery = "select page_count from url_data where lettre = '{}'".format(lettre)
             cur.execute(sql_queery)
             rows = cur.fetchall()
             rows = [i[0] for i in rows]
@@ -131,8 +139,24 @@ class sqlShit():
         except Error as e:
             print("ERROR: " + str(e))
 
-
-
+    def get_page1_url_by_lettre(self, lettre):
+        # returns the page count of the entered letter
+        # use this as a comparitor (however the fuck you spell that) variable when checking pages...
+        # ...on reruns to rescrape the site for new shit
+        try:
+            cur = self.conn.cursor()
+            sql_queery = "select page1_url from url_data where lettre = '{}'".format(lettre)
+            cur.execute(sql_queery)
+            page1_url = cur.fetchall()
+            page1_url = [i[0] for i in page1_url]
+            page1_url = page1_url[0]
+            print(page1_url)
+            # rows = rows[0]
+            print("Successfully retrieved page1_url for lettre {}: {}".format(lettre, str(page1_url)))
+            cur.close()
+            return lettre, page1_url
+        except Error as e:
+            print("ERROR: " + str(e))
 
     def update_page_count(self, lettre, update_var):
         try:
@@ -145,9 +169,9 @@ class sqlShit():
 
             elif update_var > page_count:
                 print("Change detected. Updating...")
-                sql_update_query = "update url_data set page_count = %s where lettre = '%s'" % (
+                sql_update_queery = "update url_data set page_count = %s where lettre = '%s'" % (
                     update_var, let_var)  # page_count
-                cur.execute(sql_update_query)
+                cur.execute(sql_update_queery)
                 self.conn.commit()
                 print("Record Updated successfully")
 
@@ -157,73 +181,30 @@ class sqlShit():
             print("Failed to update table.", e)
 
 
-    # DL_DATA TABLE SPECIFIC FUNCTIONS
-
-    # EXPERIMENTAL/GRAVEYARD FOR REMOVAL - need to add functionality to grab page count from webpage
-    def retrieve_lettre_page1_url(self, lettre):
-        #update this so it returns a ilst who cares
-        cur = self.conn.cursor()
-        sql_link_query = "select page1_url from url_data where lettre = '%s'" % (lettre)
-        cur.execute(sql_link_query)
-        rows = cur.fetchall()
-        rows = [i[0] for i in rows]
-        return rows[0]
-
-    def retrieve_lettre_page1_url_list(self):
-        #update this so it returns a ilst who cares
-        cur = self.conn.cursor()
-        sql_link_query = "select page1_url from url_data"
-        cur.execute(sql_link_query)
-        rows = cur.fetchall()
-        rows = [i[0] for i in rows]
-        return rows
-
-    def list_lettres(self):
-        cur = self.conn.cursor()
-        sql_link_query = "select lettre from url_data"
-        cur.execute(sql_link_query)
-        rows = cur.fetchall()
-        rows = [i[0] for i in rows]
-        return rows
-
-    def cursor_iteration(self, x):
-        cur = self.conn.cursor()
-        cur.execute('select * from url_data')
-        for row in cur:
-            print(row[x])
-
-
-
-
-    def extract_lastpage_updatetable(self, link):
-
-        cur = self.conn.cursor()
+    def extract_lastpage_updatetable(self):
+        # function to get page count from webpage
+        # cur = self.conn.cursor()
         # this is an initial run anyway so I don't think it'll matter. Can add functionality to check shit
         # later
         #use letter from sql to get certain data points on it
         # this is ass backwards and stupid but I don't care
-        sql_link_query = "select lettre from url_data where page1_url = '%s'" % (link)
-        cur.execute(sql_link_query)
-        rows = cur.fetchall()
-        rows = [i[0] for i in rows]
-        lettre = rows[0]
-
+        # sql_link_queery = "select lettre from url_data where page1_url = '{}'".format(link)
+        # cur.execute(sql_link_queery)
+        # rows = cur.fetchall()
+        # rows = [i[0] for i in rows]
+        # lettre = rows[0]
+        let_var2, page1_var2 = self.get_page1_url_by_lettre(lettre)
+        self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'])
         # var = self.retrieve_lettre_page1_url()
-        self.driver.get(link)
-        print("Opening page one of letter: {}".format(lettre))
+        self.driver.get(page1_var2)
+        print("Opening page one of letter: {}".format(let_var2))
 
-        # component that updates the table will likely need to be moved to separate def that checks
-        # if the last page extracted is greater than what already exists in the table but we will
-        # let this slide for now fuck it
-        # figure out a way to set this object to be passed from the previous definition
-        # ADD FUNCTIONALITY TO REFERENCE CONFIG FILE HERE
-
-        xpath_div_var = self.driver.find_element(By.XPATH, config['xpaths_dafont']['main_page_elem'])
+        xpath_div_var = self.driver.find_element(By.XPATH, config['xpaths']['dafont_main_page_elem'])
         xpath_lastpage_text_var = [elem for elem in xpath_div_var.find_elements(By.XPATH,
-                                                                                config['xpaths_dafont']['sub_page_elem'])]
+                                                                                config['xpaths']['dafont_sub_page_elem'])]
 
         if len(xpath_lastpage_text_var) == 1:
-            self.update_page_count_test(1, lettre)
+            self.update_page_count(lettre, 1)
 
             # return self.list_lastpage.append(1)
 
@@ -234,11 +215,29 @@ class sqlShit():
             page_ints = [int(elem.get_attribute("text").strip()) for elem in xpath_lastpage_text_var
                                if elem.get_attribute("text").strip() != '']
             max_page = max(page_ints) #returns max of the list
-            self.update_page_count_test(max_page, lettre)
+            self.update_page_count(lettre, max_page)
 
 
-    def check_page_size(self):
-        pass
+
+
+
+
+
+    # DL_DATA TABLE SPECIFIC FUNCTIONS
+
+    # EXPERIMENTAL/GRAVEYARD FOR REMOVAL - need to add functionality to grab page count from webpage
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -251,7 +250,7 @@ def main():
     # run.get_full_column('url_data', 'page1_url')
 
     # run.get_page_count_by_lettre(lettre=let_var)
-    run.update_page_count(lettre=let_var, update_var=23)
+    run.extract_lastpage_updatetable(lettre=let_var)
     run.get_full_table(table='url_data')
 
 if __name__ == '__main__':
@@ -310,3 +309,30 @@ if __name__ == '__main__':
 #
 # for row in cur.execute('SELECT page1_url FROM url_data'):
 #         print(row)
+
+
+    # def retrieve_lettre_page1_url(self, lettre):
+    #     #update this so it returns a ilst who cares
+    #     cur = self.conn.cursor()
+    #     sql_link_query = "select page1_url from url_data where lettre = '%s'" % (lettre)
+    #     cur.execute(sql_link_query)
+    #     rows = cur.fetchall()
+    #     rows = [i[0] for i in rows]
+    #     return rows[0]
+
+
+    #
+    # def retrieve_lettre_page1_url_list(self):
+    #     #update this so it returns a ilst who cares
+    #     cur = self.conn.cursor()
+    #     sql_link_query = "select page1_url from url_data"
+    #     cur.execute(sql_link_query)
+    #     rows = cur.fetchall()
+    #     rows = [i[0] for i in rows]
+    #     return rows
+
+    # def cursor_iteration(self, x):
+    #     cur = self.conn.cursor()
+    #     cur.execute('select * from url_data')
+    #     for row in cur:
+    #         print(row[x])
