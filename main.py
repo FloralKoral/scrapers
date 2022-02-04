@@ -26,10 +26,6 @@ values = [url_dafont.format(values, '1') for values in keys]
 
 
 class sqlShit():
-
-
-
-
     # BROWSER SPECIFIC FUNCTIONS
     def setup_browser(self, strat, dl_location):  # strat = normal (complete), eager (interactive), none (undefined)
         # BROWSWER SETUP DETAILS
@@ -110,7 +106,6 @@ class sqlShit():
             print(e)
 
     # URL_DATA SPECIFIC FUNCTIONS
-
     def get_page_count_by_lettre(self, lettre):
         # returns the page count of the entered letter
         # use this as a comparitor (however the fuck you spell that) variable when checking pages...
@@ -121,38 +116,38 @@ class sqlShit():
             cur.execute(sql_queery)
             rows = cur.fetchall()
             rows = [i[0] for i in rows]
+            rows = rows[0]
+            print(rows)
             # rows = rows[0]
             print("Successfully retrieved page count for lettre {}: {}".format(lettre, rows))
+            cur.close()
             return lettre, rows
         except Error as e:
             print("ERROR: " + str(e))
 
-    def update_page_count_test(self, lettre, update_var):
+    def update_page_count(self, lettre, update_var):
         try:
             #uhhhhh I have no clue if this will work and if it does I don't know why lol
             let_var, page_count = self.get_page_count_by_lettre(lettre)
             cur = self.conn.cursor()
-            sql_update_query = "update url_data set page_count = %s where lettre = '%s'" % (update_var, let_var) #page_count
-            cur.execute(sql_update_query)
-            self.conn.commit()
-            print("Record Updated successfully")
+            if update_var == page_count:
+                print("No changes detected in page count since last run")
+            elif update_var > page_count:
+                print("Change detected. Updating...")
+                sql_update_query = "update url_data set page_count = %s where lettre = '%s'" % (
+                update_var, let_var)  # page_count
+                cur.execute(sql_update_query)
+                self.conn.commit()
+                print("Record Updated successfully")
             cur.close()
 
         except Error as e:
             print("Failed to update table", e)
 
 
-
-
-
     # DL_DATA TABLE SPECIFIC FUNCTIONS
 
-
-
-
     # EXPERIMENTAL/GRAVEYARD FOR REMOVAL - need to add functionality to grab page count from webpage
-
-
     def retrieve_lettre_page1_url(self, lettre):
         #update this so it returns a ilst who cares
         cur = self.conn.cursor()
