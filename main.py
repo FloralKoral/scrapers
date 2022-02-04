@@ -209,7 +209,11 @@ class sqlShit():
         link = 'https://www.dafont.com/alpha.php?lettre=a&page=2&fpp=200'
         self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=False)
         self.driver.get(link)
+        xpath_dl_var = [elem for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem']))]
+        print(xpath_dl_var)
 
+        dl_urls = [elem.get_attribute("href") for elem in xpath_dl_var]
+        print(dl_urls)
     # DL_DATA TABLE SPECIFIC FUNCTIONS
 
 
