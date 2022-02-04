@@ -8,22 +8,12 @@ import configparser
 import sqlite3
 from sqlite3 import Error
 
-# OKAY HEAR ME OUT. JUST USE CONFIG FILES
-# Like, seriously fuck it, who cares, you can learn sql later.
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-options = webdriver.ChromeOptions()
+
 
 headless = True
-
-# DATA
-url_dafont = 'https://www.dafont.com/alpha.php?lettre={}&page={}&fpp=200'
-keys = [ascii for ascii in ascii_lowercase] + ['%23']
-values = [url_dafont.format(values, '1') for values in keys]
-
-
-
 
 class sqlShit():
     # PICKLE SHIT
@@ -43,7 +33,7 @@ class sqlShit():
                  }
 
         # OPTIONS
-
+        options = webdriver.ChromeOptions()
         options.add_experimental_option("prefs", prefs)
         options.headless = headless
 
