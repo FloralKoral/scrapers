@@ -181,18 +181,13 @@ class sqlShit():
             print("Failed to update table.", e)
 
 
-    def extract_lastpage_updatetable(self):
+    def extract_lastpage_updatetable(self,lettre):
         # function to get page count from webpage
         # cur = self.conn.cursor()
         # this is an initial run anyway so I don't think it'll matter. Can add functionality to check shit
         # later
         #use letter from sql to get certain data points on it
         # this is ass backwards and stupid but I don't care
-        # sql_link_queery = "select lettre from url_data where page1_url = '{}'".format(link)
-        # cur.execute(sql_link_queery)
-        # rows = cur.fetchall()
-        # rows = [i[0] for i in rows]
-        # lettre = rows[0]
         let_var2, page1_var2 = self.get_page1_url_by_lettre(lettre)
         self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'])
         # var = self.retrieve_lettre_page1_url()
@@ -201,12 +196,9 @@ class sqlShit():
 
         xpath_div_var = self.driver.find_element(By.XPATH, config['xpaths']['dafont_main_page_elem'])
         xpath_lastpage_text_var = [elem for elem in xpath_div_var.find_elements(By.XPATH,
-                                                                                config['xpaths']['dafont_sub_page_elem'])]
-
+                                                                                str(config['xpaths']['dafont_sub_page_elem']))]
         if len(xpath_lastpage_text_var) == 1:
             self.update_page_count(lettre, 1)
-
-            # return self.list_lastpage.append(1)
 
             #for some reason fucks up on x which only has one page but
             #this resolves the issue for some fucking reason
@@ -218,7 +210,8 @@ class sqlShit():
             self.update_page_count(lettre, max_page)
 
 
-
+    def open_urls_by_letter(self,lettre, page_num_var):
+        print(config['baselink']['dafont'].format("a",1))
 
 
 
@@ -251,7 +244,8 @@ def main():
 
     # run.get_page_count_by_lettre(lettre=let_var)
     run.extract_lastpage_updatetable(lettre=let_var)
-    run.get_full_table(table='url_data')
+    # run.get_full_table(table='url_data')
+    run.open_urls_by_letter()
 
 if __name__ == '__main__':
     main()
