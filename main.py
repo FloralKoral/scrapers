@@ -22,16 +22,12 @@ url_dafont = 'https://www.dafont.com/alpha.php?lettre={}&page={}&fpp=200'
 keys = [ascii for ascii in ascii_lowercase] + ['%23']
 values = [url_dafont.format(values, '1') for values in keys]
 
-# lettre_var = None
-class sqlShit:
-
-    def __init__(self, lettre):
-        self.lettre = lettre
 
 
-    def define_lettre(self,lettre):
-        letter_var = lettre
-        return letter_var
+
+class sqlShit():
+
+
 
 
     # BROWSER SPECIFIC FUNCTIONS
@@ -115,28 +111,28 @@ class sqlShit:
 
     # URL_DATA SPECIFIC FUNCTIONS
 
-    def get_page_count_by_lettre(self):
+    def get_page_count_by_lettre(self, lettre):
         # returns the page count of the entered letter
         # use this as a comparitor (however the fuck you spell that) variable when checking pages...
         # ...on reruns to rescrape the site for new shit
         try:
             cur = self.conn.cursor()
-            sql_queery = "select page_count from url_data where lettre = '%s'" % lettre_var
+            sql_queery = "select page_count from url_data where lettre = '%s'" % lettre
             cur.execute(sql_queery)
             rows = cur.fetchall()
             rows = [i[0] for i in rows]
             # rows = rows[0]
-            print("Successfully retrieved page count for lettre {}: {}".format(lettre_var, rows))
-            return lettre_var, rows
+            print("Successfully retrieved page count for lettre {}: {}".format(lettre, rows))
+            return lettre, rows
         except Error as e:
             print("ERROR: " + str(e))
 
-    def update_page_count_test(self):
+    def update_page_count_test(self, lettre, update_var):
         try:
             #uhhhhh I have no clue if this will work and if it does I don't know why lol
-            lettre, page_count = self.get_page_count_by_lettre()
+            let_var, page_count = self.get_page_count_by_lettre(lettre)
             cur = self.conn.cursor()
-            sql_update_query = "update url_data set page_count = %s where lettre = '%s'" % (1, lettre) #page_count
+            sql_update_query = "update url_data set page_count = %s where lettre = '%s'" % (update_var, let_var) #page_count
             cur.execute(sql_update_query)
             self.conn.commit()
             print("Record Updated successfully")
@@ -242,13 +238,14 @@ class sqlShit:
 def main():
     database = "data_dafont.db"
     run = sqlShit()
+    let_var = 'a'
     run.create_connection(database)
-    # run.get_full_table('url_data')
-    # run.get_full_column('url_data', 'page1_url')
-    run.define_lettre('a')
-    run.get_page_count_by_lettre()
-    # run.update_page_count_test()
 
+    # run.get_full_column('url_data', 'page1_url')
+
+    # run.get_page_count_by_lettre(lettre=let_var)
+    run.update_page_count_test(lettre=let_var, update_var=23)
+    run.get_full_table(table='url_data')
 
 if __name__ == '__main__':
     main()
