@@ -210,6 +210,16 @@ class sqlShit():
         self.conn.commit()
         print("Record Updated successfully for: {}".format(dl_str))
 
+    def check_if_exists_in_column(self, lettre_var, dl_str):
+        cur = self.conn.cursor()
+        sql_queery = "SELECT rowid FROM dl_data WHERE {} = {}".format(lettre_var, dl_str)
+        cur.execute(sql_queery)
+        data = cur.fetchall()
+        if len(data) == 0:
+            print('There is no component named %s' % name)
+        else:
+            print('Component %s found with rowids %s
+
     def TESTING_get_dl_urls_update_table(self):
         lettre = 'a'
         pagenum = '2'
@@ -246,7 +256,7 @@ def main():
     let_var = 'a'
     run.create_connection(database)
     # run.test()
-    run.delete_table_rows('dl_data')
+    # run.delete_table_rows('dl_data')
     run.TESTING_get_dl_urls_update_table()
     # run.get_full_column('url_data', 'page1_url')
 
