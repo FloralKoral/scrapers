@@ -1,8 +1,0 @@
-[xpaths_dafont]
-main_page_elem = "//div[@class='noindex']"
-sub_page_elem = ".//a[contains(@href, 'alpha.php?lettre=')]"
-dl_elem = "//a[@class='dl']"
-
-[dl_location]
-dafont="rD:\brushes\00_uptake\dafont"
-

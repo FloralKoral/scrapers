@@ -16,13 +16,24 @@ config.read('config.ini')
 options = webdriver.ChromeOptions()
 
 headless = True
+
 # DATA
 url_dafont = 'https://www.dafont.com/alpha.php?lettre={}&page={}&fpp=200'
 keys = [ascii for ascii in ascii_lowercase] + ['%23']
 values = [url_dafont.format(values, '1') for values in keys]
 
-
+# lettre_var = None
 class sqlShit:
+
+    def __init__(self, lettre):
+        self.lettre = lettre
+
+
+    def define_lettre(self,lettre):
+        letter_var = lettre
+        return letter_var
+
+
     # BROWSER SPECIFIC FUNCTIONS
     def setup_browser(self, strat, dl_location):  # strat = normal (complete), eager (interactive), none (undefined)
         # BROWSWER SETUP DETAILS
@@ -103,21 +114,37 @@ class sqlShit:
             print(e)
 
     # URL_DATA SPECIFIC FUNCTIONS
-    def get_page_count_by_letter(self, lettre):
+
+    def get_page_count_by_lettre(self):
         # returns the page count of the entered letter
         # use this as a comparitor (however the fuck you spell that) variable when checking pages...
         # ...on reruns to rescrape the site for new shit
         try:
             cur = self.conn.cursor()
-            sql_queery = "select page_count from url_data where lettre = '%s'" % lettre
+            sql_queery = "select page_count from url_data where lettre = '%s'" % lettre_var
             cur.execute(sql_queery)
             rows = cur.fetchall()
             rows = [i[0] for i in rows]
-            rows = rows[0]
-            print("Successfully retrieved page count for lettre {}: {}".format(lettre, rows))
-            return rows
+            # rows = rows[0]
+            print("Successfully retrieved page count for lettre {}: {}".format(lettre_var, rows))
+            return lettre_var, rows
         except Error as e:
             print("ERROR: " + str(e))
+
+    def update_page_count_test(self):
+        try:
+            #uhhhhh I have no clue if this will work and if it does I don't know why lol
+            lettre, page_count = self.get_page_count_by_lettre()
+            cur = self.conn.cursor()
+            sql_update_query = "update url_data set page_count = %s where lettre = '%s'" % (1, lettre) #page_count
+            cur.execute(sql_update_query)
+            self.conn.commit()
+            print("Record Updated successfully")
+            cur.close()
+
+        except Error as e:
+            print("Failed to update table", e)
+
 
 
 
@@ -128,17 +155,7 @@ class sqlShit:
 
 
     # EXPERIMENTAL/GRAVEYARD FOR REMOVAL - need to add functionality to grab page count from webpage
-    def update_page_count_test(self, page_count, lettre):
-        try:
-            cur = self.conn.cursor()
-            sql_update_query = "update url_data set page_count = %s where lettre = '%s'" % (page_count, lettre)
-            cur.execute(sql_update_query)
-            self.conn.commit()
-            print("Record Updated successfully")
-            cur.close()
 
-        except Error as e:
-            print("Failed to update table", e)
 
     def retrieve_lettre_page1_url(self, lettre):
         #update this so it returns a ilst who cares
@@ -226,9 +243,11 @@ def main():
     database = "data_dafont.db"
     run = sqlShit()
     run.create_connection(database)
-    run.get_full_table('url_data')
-    run.get_full_column('url_data', 'page1_url')
-    run.get_page_count_by_letter('a')
+    # run.get_full_table('url_data')
+    # run.get_full_column('url_data', 'page1_url')
+    run.define_lettre('a')
+    run.get_page_count_by_lettre()
+    # run.update_page_count_test()
 
 
 if __name__ == '__main__':
