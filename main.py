@@ -100,7 +100,7 @@ class sqlShit():
         rows = [i[0] for i in rows]
         return rows
 
-    def delete_full_table(self, table):
+    def delete_table_rows(self, table):
         try:
             cur = self.conn.cursor()
             sql_queery = "DELETE FROM {}".format(table)
@@ -200,26 +200,26 @@ class sqlShit():
             self.update_page_count(lettre, max_page)
 
 
-    def open_urls_by_lettre(self,lettre, page_num_var):
-        print(config['baselink']['dafont'].format("a",1))
 
-
+    # DL_DATA TABLE SPECIFIC FUNCTIONS
+    def update_by_column(self, lettre_var, dl_str):
+        #general function to update dl_data table by column letter
+        cur = self.conn.cursor()
+        sql_update_queery = "insert into dl_data ({}) values ('{}')".format(lettre_var, dl_str)  # page_count
+        cur.execute(sql_update_queery)
+        self.conn.commit()
+        print("Record Updated successfully for: {}".format(dl_str))
 
     def TESTING_get_dl_urls_update_table(self):
+        lettre = 'a'
+        pagenum = '2'
         link = 'https://www.dafont.com/alpha.php?lettre=a&page=2&fpp=200'
         self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=False)
+        print("Opening link.")
         self.driver.get(link)
-        # look list comprehensions are cool but can both of these be taken care of at the same time?
-
         for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem'])):
             dl_urls = elem.get_attribute("href").replace(config['baselink']['dafont_dl'].format(""), "")
-
-        # xpath_dl_var = [elem for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem']))]
-        #
-        #
-        # dl_urls = [elem.get_attribute("href").replace(config['baselink']['dafont_dl'].format(""),"") for elem in xpath_dl_var]
-            print(dl_urls)
-    # DL_DATA TABLE SPECIFIC FUNCTIONS
+            self.update_by_column(lettre,dl_urls)
 
 
 
@@ -246,6 +246,7 @@ def main():
     let_var = 'a'
     run.create_connection(database)
     # run.test()
+    run.delete_table_rows('dl_data')
     run.TESTING_get_dl_urls_update_table()
     # run.get_full_column('url_data', 'page1_url')
 
@@ -337,3 +338,8 @@ if __name__ == '__main__':
     #     cur.execute('select * from url_data')
     #     for row in cur:
     #         print(row[x])
+
+# xpath_dl_var = [elem for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem']))]
+        #
+        #
+        # dl_urls = [elem.get_attribute("href").replace(config['baselink']['dafont_dl'].format(""),"") for elem in xpath_dl_var]
