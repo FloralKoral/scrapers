@@ -25,7 +25,7 @@ class sqlShit():
         # BROWSWER SETUP DETAILS
         # initiate with config file reference for dl_location as to make this more usable for other websites
         # PREFERENCES - set preferences for options of browser
-        prefs = {"download.default_directory": dl_location,
+        prefs = {"download.default_directory": r"{}".format(dl_location),
                  'profile.default_content_setting_values.automatic_downloads': 1,
                  "excludeSwitches": ["test-type", "enable-automation"]
                  }
@@ -252,39 +252,26 @@ class sqlShit():
         rows = [i[0] for i in rows]
         return rows
 
-
-    # return the formatted dl_urls
-    def dafont_dl_urls(self,lettre_var, limit):
-        for i in self.list_dl_str_by_lettre(lettre_var, limit):
-            print(config['baselink']['dafont_dl'].format(i))
-
-
-    def massopenshit(self):
-        self.setup_browser(strat='none', dl_location=config['dl_location']['dafont'], headless=False)
-        for i in range(1,10):
-            # Open a new window
-            exec_script = "window.open('{}');".format(link)
-            self.driver.execute_script(exec_script)
-
-
-        # for i in range(1,10):
-        #     if i == 1:
-        #         self.driver.get("https://www.reddit.com/")
-        #     else:
-        #         # Open a new window
-        #         self.driver.execute_script("window.open('');")
-        time.sleep(30)
-                # Switch to the new window
-                # self.driver.switch_to.window(self.driver.window_handles[i+1])
-                # self.driver.get("https://www.reddit.com/")
-
-    # create function to determine if file successfully saved
-    def update_file_saved(self,  tf, lettre_var):
+    def update_file_saved(self,  tf, dl_key):
         cur = self.conn.cursor()
-        sql_queery = "update dl_data set file_saved = '%s' where lettre_key = '%s'" % (tf, lettre_var)
+        sql_queery = "update dl_data set file_saved = '%s' where dl_key = '%s'" % (tf, dl_key)
         cur.execute(sql_queery)
         self.conn.commit()
-        print("Records updated successfully for: {}".format(lettre_var))
+        print("Download note updated successfully for: {}".format(dl_key))
+
+
+    def mass_open_shit(self,lettre_var, limit):
+        self.setup_browser(strat='none', dl_location=config['dl_location']['dafont'], headless=False)
+        for i in self.list_dl_str_by_lettre(lettre_var, limit):
+            # Open a new window
+            exec_script = "window.open('{}');".format(config['baselink']['dafont_dl'].format(i))
+            self.driver.execute_script(exec_script)
+            self.update_file_saved('t',i)
+
+
+
+
+
 
 
 def main():
@@ -298,7 +285,7 @@ def main():
     lettre = 'a'
     # run.get_dl_links_from_table(lettre, None)
     # run.dafont_dl_urls(lettre, 5)
-    run.massopenshit()
+    # run.mass_open_shit('a', 20)
     # run.update_file_saved('f', lettre)
     # page_count = run.get_page_count_by_lettre(lettre)
     # print(page_count)
