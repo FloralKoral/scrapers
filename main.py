@@ -11,10 +11,6 @@ from sqlite3 import Error
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-
-
-
-
 class sqlShit():
     # PICKLE SHIT
     # create function to pickle dump shit and clear a pickle file, use this to document when there are
@@ -185,7 +181,6 @@ class sqlShit():
         except Error as e:
             print("Failed to update table.", e)
 
-
     def extract_lastpage_update_table(self,lettre):
         # function to get page count from webpage
         # cur = self.conn.cursor()
@@ -219,18 +214,6 @@ class sqlShit():
     # I ACTUALLY DOWNLOADED IT OR IF I JUST SCRAPED THE VALUES TO BE DOWNLOADED LATER, MAYBE ADD OBJECT TO TELL IT TO
     # SCRAPE VS DOWNLOAD
     # DL DATA SPECIFIC FUNCTIONS
-    def insert_dl_data(self, lettre_var, page_num, dl_str ):
-        #general function to update dl_data table by column letter
-        cur = self.conn.cursor()
-        sql_queery = "insert into dl_data (lettre_key, page, dl_str, file_saved) values ('%s', %s, '%s', 'FALSE');" % \
-                     (lettre_var, page_num, dl_str)
-
-        # sql_queery = "insert into {} (dl_key, page_num, file_saved) values ('{}', {}, 'NO')"\
-        #     .format(lettre_var, dl_str, page_num)
-        cur.execute(sql_queery)
-        self.conn.commit()
-        cur.close()
-        print("Record Updated successfully for: {}".format(dl_str))
 
     def check_if_exists_in_column(self, lettre_var, dl_str):
         cur = self.conn.cursor()
@@ -242,17 +225,21 @@ class sqlShit():
         else:
             print("this shit already exists")
 
-    def TESTING_get_dl_urls_update_table(self):
-        let_var = 'a'
-        pagenum = '2'
-        link = 'https://www.dafont.com/alpha.php?lettre=a&page=2&fpp=200'
+    def TESTING_get_dl_urls_update_table(self, link, lettre_var, page_num, dl_str):
         self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
         print("Opening URL...")
         self.driver.get(link)
         print("URL successfully opened.")
         for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem'])):
             dl_urls = elem.get_attribute("href").replace(config['baselink']['dafont_dl'].format(""), "")
-            self.insert_dl_data(let_var, pagenum, dl_urls)
+            cur = self.conn.cursor()
+            sql_queery = "insert into dl_data (lettre_key, page, dl_str, file_saved) values ('%s', %s, '%s', 'FALSE');" % \
+                         (lettre_var, page_num, dl_str)
+            cur.execute(sql_queery)
+            self.conn.commit()
+            cur.close()
+            print("Record Updated successfully for: {}".format(dl_str))
+
 
 
 
@@ -272,7 +259,8 @@ def main():
     # for let_var in keys:
     #
     #    run.drop_table(let_var)
-    run.TESTING_get_dl_urls_update_table()
+    sql_queery = "select page1_url from url_data where lettre = '{}'".format(lettre)
+    run.TESTING_get_dl_urls_update_table(link=)
 
     # run.get_full_table(table=let_var)
     # run.delete_table_rows('dl_data')
