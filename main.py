@@ -70,6 +70,15 @@ class sqlShit():
         cur.execute(sql_queery)
         print(cur.fetchall())
 
+    def drop_table(self, table):
+        try:
+            cur = self.conn.cursor()
+            sql_queery = "drop table {}".format(table)
+            cur.execute(sql_queery)
+            print("Table successfully deleted.")
+        except Error as e:
+            print("\nERROR:", e, "\nCheck database name.")
+
     def get_full_table(self, table):
         try:
             cur = self.conn.cursor()
@@ -209,13 +218,18 @@ class sqlShit():
     # OOF DL DATA WILL NEED TO BE SPLIT UP INTO TABLES FOR EACH LETTER SO THAT I CAN TRACK PAGE NUMBER, DL LINK, AND IF
     # I ACTUALLY DOWNLOADED IT OR IF I JUST SCRAPED THE VALUES TO BE DOWNLOADED LATER, MAYBE ADD OBJECT TO TELL IT TO
     # SCRAPE VS DOWNLOAD
-    # LETTRE TABLE SPECIFIC FUNCTIONS
-    def update_by_column(self, lettre_var, dl_str):
+    # DL DATA SPECIFIC FUNCTIONS
+    def insert_dl_data(self, lettre_var, page_num, dl_str ):
         #general function to update dl_data table by column letter
         cur = self.conn.cursor()
-        sql_update_queery = "insert into dl_data ({}) values ('{}')".format(lettre_var, dl_str)  # page_count
-        cur.execute(sql_update_queery)
+        sql_queery = "insert into dl_data (lettre_key, page, dl_str, file_saved) values ('%s', %s, '%s', 'FALSE');" % \
+                     (lettre_var, page_num, dl_str)
+
+        # sql_queery = "insert into {} (dl_key, page_num, file_saved) values ('{}', {}, 'NO')"\
+        #     .format(lettre_var, dl_str, page_num)
+        cur.execute(sql_queery)
         self.conn.commit()
+        cur.close()
         print("Record Updated successfully for: {}".format(dl_str))
 
     def check_if_exists_in_column(self, lettre_var, dl_str):
@@ -229,34 +243,20 @@ class sqlShit():
             print("this shit already exists")
 
     def TESTING_get_dl_urls_update_table(self):
-        lettre = '\%23'
+        let_var = 'a'
         pagenum = '2'
         link = 'https://www.dafont.com/alpha.php?lettre=a&page=2&fpp=200'
-        self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=False)
-        print("Opening link.")
+        self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
+        print("Opening URL...")
         self.driver.get(link)
+        print("URL successfully opened.")
         for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem'])):
             dl_urls = elem.get_attribute("href").replace(config['baselink']['dafont_dl'].format(""), "")
-            self.update_by_column(lettre,dl_urls)
+            self.insert_dl_data(let_var, pagenum, dl_urls)
 
 
 
     # EXPERIMENTAL/GRAVEYARD FOR REMOVAL - need to add functionality to grab page count from webpage
-
-    def test(self):
-        print(config['baselink']['dafont_dl'].format(""))
-
-    # OOF DL DATA WILL NEED TO BE SPLIT UP INTO TABLES FOR EACH LETTER SO THAT I CAN TRACK PAGE NUMBER, DL LINK, AND IF
-    # I ACTUALLY DOWNLOADED IT OR IF I JUST SCRAPED THE VALUES TO BE DOWNLOADED LATER, MAYBE ADD OBJECT TO TELL IT TO
-    # SCRAPE VS DOWNLOAD
-    def create_letter_tables_1_off(self):
-        # for let_var in self.list_lettre():
-        cur = self.conn.cursor()
-            # sql_queery = "CREATE TABLE {} (dl_key, page_num, file_saved)".format(let_var)
-        #     cur.execute(sql_queery)
-
-
-
 
 
 
@@ -265,13 +265,18 @@ class sqlShit():
 
 
 def main():
+    # keys = [ascii for ascii in ascii_lowercase] + ["'%23'"]
     database = "data_dafont.db"
     run = sqlShit()
-    let_var = 'a'
     run.create_connection(database)
-    # run.test()
+    # for let_var in keys:
+    #
+    #    run.drop_table(let_var)
+    run.TESTING_get_dl_urls_update_table()
+
+    # run.get_full_table(table=let_var)
     # run.delete_table_rows('dl_data')
-    run.create_letter_tables_1_off()
+
     # run.get_full_column('url_data', 'page1_url')
 
     # run.get_page_count_by_lettre(lettre=let_var)
