@@ -1,4 +1,6 @@
 # IMPORTS
+import time
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -242,20 +244,39 @@ class sqlShit():
 
     # actually download links and update table to say that it has been downloaded in the file_saved column
     # open browser without a get wait since downloads will be returned automatically
-    def list_dl_str_by_lettre(self, lettre_var):
+    def list_dl_str_by_lettre(self, lettre_var,limit=None):
         cur = self.conn.cursor()
-        sql_link_queery = "select dl_str from dl_data where lettre_key = '%s" % (lettre_var)
+        sql_link_queery = "select dl_str from dl_data where lettre_key = '%s' limit %s" % (lettre_var, limit)
         cur.execute(sql_link_queery)
         rows = cur.fetchall()
         rows = [i[0] for i in rows]
         return rows
 
-    def get_dl_links_from_table(self, lettre_var):
-        for i in range(len(self.list_dl_str_by_lettre(lettre_var))+1):
-            pass
+
+    # return the formatted dl_urls
+    def dafont_dl_urls(self,lettre_var, limit):
+        for i in self.list_dl_str_by_lettre(lettre_var, limit):
+            print(config['baselink']['dafont_dl'].format(i))
 
 
-    # SELECT Name FROM Sample.MyTest WHERE Name %STARTSWITH 'M'
+    def massopenshit(self):
+        self.setup_browser(strat='none', dl_location=config['dl_location']['dafont'], headless=False)
+        for i in range(1,10):
+            # Open a new window
+            exec_script = "window.open('{}');".format(link)
+            self.driver.execute_script(exec_script)
+
+
+        # for i in range(1,10):
+        #     if i == 1:
+        #         self.driver.get("https://www.reddit.com/")
+        #     else:
+        #         # Open a new window
+        #         self.driver.execute_script("window.open('');")
+        time.sleep(30)
+                # Switch to the new window
+                # self.driver.switch_to.window(self.driver.window_handles[i+1])
+                # self.driver.get("https://www.reddit.com/")
 
     # create function to determine if file successfully saved
     def update_file_saved(self,  tf, lettre_var):
@@ -275,8 +296,10 @@ def main():
     #
     #    run.drop_table(let_var)
     lettre = 'a'
-
-    run.update_file_saved('f', lettre)
+    # run.get_dl_links_from_table(lettre, None)
+    # run.dafont_dl_urls(lettre, 5)
+    run.massopenshit()
+    # run.update_file_saved('f', lettre)
     # page_count = run.get_page_count_by_lettre(lettre)
     # print(page_count)
     # for i in range(1, page_count+1):
@@ -299,84 +322,3 @@ if __name__ == '__main__':
 
 
 
-# DUST BIN OF HISTORY
-
-# don't do this shit, just manually create it using an sql queery with shit generated from
-# excel to save time
-# def initialDataPopulation(self):
-#     #create the initial data table with page letters and page 1 urls
-#     for i in range(len(keys)):
-#         self.insertVaribleIntoTable(lettre=keys[i], page1_url=values[i])
-#     self.conn.commit()
-
-
-# PLEASE STOP DOING THIS SHIT. Literally just create the shit manually and populate from there, not
-# everything needs to be coded in Python for this to work or for me to be satisfied. Just like tracing
-# as a base for a drawing. There is no shame in manual setup.
-    #
-    # def insertVaribleIntoTable(self, lettre=None, page1_url=None, page_count=None):
-    #     try:
-    #         sqlite_insert_with_param = """INSERT INTO url_data
-    #                           (lettre, page1_url, page_count)
-    #                           VALUES (?, ?, ?);"""
-    #
-    #         data_tuple = (lettre, page1_url, page_count)
-    #         cur = self.conn.cursor()
-    #         cur.execute(sqlite_insert_with_param, data_tuple)
-    #         # self.conn.commit()
-    #         print("Python Variables inserted successfully into SqliteDb_developers table")
-    #
-    #     except Error as e:
-    #         print("Failed to insert Python variable into sqlite table", e)
-
-    # for i in range(len(keys)):
-    #     print("{}={},".format(keys[i], values[i]))
-        # print("\'{}\':\'{}\',".format(keys[i],values[i]))
-
-    # f = config.read("config.ini")
-
-
-#
-
-# cur.execute("create table url_data (lettre, page1_url, page_count)")
-
-# for i in range(len(keys)):
-#     cur.execute("INSERT INTO url_data (lettre, page1_url) VALUES (?, ?)", (keys[i], values[i]))
-# con.commit()
-
-# cur.execute("insert into url_data (lettre) values ('cum')")
-#
-# for row in cur.execute('SELECT page1_url FROM url_data'):
-#         print(row)
-
-
-    # def retrieve_lettre_page1_url(self, lettre):
-    #     #update this so it returns a ilst who cares
-    #     cur = self.conn.cursor()
-    #     sql_link_query = "select page1_url from url_data where lettre = '%s'" % (lettre)
-    #     cur.execute(sql_link_query)
-    #     rows = cur.fetchall()
-    #     rows = [i[0] for i in rows]
-    #     return rows[0]
-
-
-    #
-    # def retrieve_lettre_page1_url_list(self):
-    #     #update this so it returns a ilst who cares
-    #     cur = self.conn.cursor()
-    #     sql_link_query = "select page1_url from url_data"
-    #     cur.execute(sql_link_query)
-    #     rows = cur.fetchall()
-    #     rows = [i[0] for i in rows]
-    #     return rows
-
-    # def cursor_iteration(self, x):
-    #     cur = self.conn.cursor()
-    #     cur.execute('select * from url_data')
-    #     for row in cur:
-    #         print(row[x])
-
-# xpath_dl_var = [elem for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem']))]
-        #
-        #
-        # dl_urls = [elem.get_attribute("href").replace(config['baselink']['dafont_dl'].format(""),"") for elem in xpath_dl_var]
