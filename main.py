@@ -215,7 +215,7 @@ class sqlShit():
     # SCRAPE VS DOWNLOAD
     # DL DATA SPECIFIC FUNCTIONS
 
-    def TESTING_get_dl_urls_update_table(self,lettre_var, page_num):
+    def get_download_links_update_table(self,lettre_var, page_num):
         # checks if the dl_str extracted from the site already exists in the database
         self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
         print("Opening URL...")
@@ -231,20 +231,43 @@ class sqlShit():
             data = cur.fetchall()
             if len(data) == 0:
                 print("No record of this string currently exists. Proceeding to enter necessary data.")
-                sql_queery_2 = "insert into dl_data (lettre_key, page, dl_str, file_saved) values ('%s', %s, '%s', 'FALSE');" % \
+                sql_queery_2 = "insert into dl_data (lettre_key, page, dl_str, file_saved) values ('%s', %s, '%s', 'f');" % \
                              (lettre_var, page_num, dl_urls)
                 cur.execute(sql_queery_2)
                 self.conn.commit()
                 cur.close()
                 print("Record Updated successfully for: {}".format(dl_urls))
             else:
-                print("This record already exists... Proceeding to next record.")
+                print("This record already exists... Proceeding to next download string.")
+
+    # actually download links and update table to say that it has been downloaded in the file_saved column
+    # open browser without a get wait since downloads will be returned automatically
+    def list_dl_str_by_lettre(self, lettre_var):
+        cur = self.conn.cursor()
+        sql_link_queery = "select dl_str from dl_data where lettre_key = '%s" % (lettre_var)
+        cur.execute(sql_link_queery)
+        rows = cur.fetchall()
+        rows = [i[0] for i in rows]
+        return rows
+
+    def get_dl_links_from_table(self, lettre_var):
+        for i in range(len(self.list_dl_str_by_lettre(lettre_var))+1):
+            pass
 
 
+    # SELECT Name FROM Sample.MyTest WHERE Name %STARTSWITH 'M'
+
+    # create function to determine if file successfully saved
+    def update_file_saved(self,  tf, lettre_var):
+        cur = self.conn.cursor()
+        sql_queery = "update dl_data set file_saved = '%s' where lettre_key = '%s'" % (tf, lettre_var)
+        cur.execute(sql_queery)
+        self.conn.commit()
+        print("Records updated successfully for: {}".format(lettre_var))
 
 
 def main():
-    # keys = [ascii for ascii in ascii_lowercase] + ["'%23'"]
+    keys = [ascii for ascii in ascii_lowercase] + ["'%23'"]
     database = "data_dafont.db"
     run = sqlShit()
     run.create_connection(database)
@@ -252,10 +275,12 @@ def main():
     #
     #    run.drop_table(let_var)
     lettre = 'a'
-    page_count = run.get_page_count_by_lettre(lettre)
-    print(page_count)
-    for i in range(1, page_count+1):
-        run.TESTING_get_dl_urls_update_table(lettre_var=lettre,page_num=i)
+
+    run.update_file_saved('f', lettre)
+    # page_count = run.get_page_count_by_lettre(lettre)
+    # print(page_count)
+    # for i in range(1, page_count+1):
+    #     run.get_download_links_update_table(lettre_var=lettre,page_num=i)
 
     # run.get_full_table(table=let_var)
     # run.delete_table_rows('dl_data')
