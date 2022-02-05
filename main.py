@@ -136,7 +136,7 @@ class sqlShit():
             # rows = rows[0]
             print("Successfully retrieved page count for lettre {}: {}".format(lettre, rows))
             cur.close()
-            return lettre, rows
+            return rows
         except Error as e:
             print("ERROR: " + str(e))
 
@@ -215,38 +215,30 @@ class sqlShit():
     # SCRAPE VS DOWNLOAD
     # DL DATA SPECIFIC FUNCTIONS
 
-    def check_if_exists_in_column(self, lettre_var, dl_str):
-        cur = self.conn.cursor()
-        sql_queery = "SELECT rowid FROM dl_data WHERE {} = {}".format(lettre_var, dl_str)
-        cur.execute(sql_queery)
-        data = cur.fetchall()
-        if len(data) == 0:
-            print("this shit wasn't found")
-        else:
-            print("this shit already exists")
-
-    def TESTING_get_dl_urls_update_table(self, link, lettre_var, page_num, dl_str):
+    def TESTING_get_dl_urls_update_table(self,lettre_var, page_num):
+        # checks if the dl_str extracted from the site already exists in the database
         self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
         print("Opening URL...")
+        link = config['baselink']['dafont'].format(lettre_var, page_num)
         self.driver.get(link)
         print("URL successfully opened.")
         for elem in self.driver.find_elements(By.XPATH, str(config['xpaths']['dafont_dl_elem'])):
             dl_urls = elem.get_attribute("href").replace(config['baselink']['dafont_dl'].format(""), "")
             cur = self.conn.cursor()
-            sql_queery = "insert into dl_data (lettre_key, page, dl_str, file_saved) values ('%s', %s, '%s', 'FALSE');" % \
-                         (lettre_var, page_num, dl_str)
+            # check if exists in db already
+            sql_queery = "SELECT rowid FROM dl_data WHERE dl_str = '{}'".format(dl_urls)
             cur.execute(sql_queery)
-            self.conn.commit()
-            cur.close()
-            print("Record Updated successfully for: {}".format(dl_str))
-
-
-
-
-    # EXPERIMENTAL/GRAVEYARD FOR REMOVAL - need to add functionality to grab page count from webpage
-
-
-
+            data = cur.fetchall()
+            if len(data) == 0:
+                print("No record of this string currently exists. Proceeding to enter necessary data.")
+                sql_queery_2 = "insert into dl_data (lettre_key, page, dl_str, file_saved) values ('%s', %s, '%s', 'FALSE');" % \
+                             (lettre_var, page_num, dl_urls)
+                cur.execute(sql_queery_2)
+                self.conn.commit()
+                cur.close()
+                print("Record Updated successfully for: {}".format(dl_urls))
+            else:
+                print("This record already exists... Proceeding to next record.")
 
 
 
@@ -259,8 +251,11 @@ def main():
     # for let_var in keys:
     #
     #    run.drop_table(let_var)
-    sql_queery = "select page1_url from url_data where lettre = '{}'".format(lettre)
-    run.TESTING_get_dl_urls_update_table(link=)
+    lettre = 'a'
+    page_count = run.get_page_count_by_lettre(lettre)
+    print(page_count)
+    for i in range(1, page_count+1):
+        run.TESTING_get_dl_urls_update_table(lettre_var=lettre,page_num=i)
 
     # run.get_full_table(table=let_var)
     # run.delete_table_rows('dl_data')
