@@ -14,10 +14,11 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 class sqlShit():
+
+
     # PICKLE SHIT
-    # create function to pickle dump shit and clear a pickle file, use this to document when there are
-    # updates to page count so we can go in and check if there are any to which the code will pull download
-    # links according to letters that had changes so the entire website doesn't need to be scanned
+    # PICKLE LIST OF PAGE LETTERS WITH CHANGES DETECTED
+    #add this later who cares
 
 
     # BROWSER SPECIFIC FUNCTIONS
@@ -271,20 +272,27 @@ class sqlShit():
 
 
 def main():
-    keys = [ascii for ascii in ascii_lowercase] + ["%23"]
+    keys = [ascii for ascii in ascii_lowercase] + ["p23"]
     database = "data_dafont.db"
     run = sqlShit()
     run.create_connection(database)
 
-    # Extract the last pages for each page lettre. Will auto update the table.
+    ## Extract the last page from the url for each page lettre. Will auto update the table.
+    # run.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
+    # for lettre in keys:
+    #     run.extract_lastpage_update_table(lettre)
+
+    # extract dl keys for all pages and dump into database
     run.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
-    for lettre in keys[25:]:
-        run.extract_lastpage_update_table(lettre)
+    for lettre in keys:
+        page_count = run.get_page_count_by_lettre(lettre)
+        for i in range(1, page_count+1):
+            run.get_download_links_update_table(lettre_var=lettre,page_num=i)
 
-    # extract dl keys
-    run.setup_browser(strat='none', dl_location=config['dl_location']['dafont'], headless=False)
 
 
+    # # Setup browser for mass link downloads
+    # run.setup_browser(strat='none', dl_location=config['dl_location']['dafont'], headless=False)
 
     # run.get_dl_links_from_table(lettre, None)
     # run.dafont_dl_urls(lettre, 5)
