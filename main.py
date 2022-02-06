@@ -44,7 +44,7 @@ class sqlShit():
 
         self.driver = webdriver.Chrome(desired_capabilities=caps, service=service, options=options)
         self.driver.create_options()
-        print("Browser configuration complete.\n")
+        print("Browser configuration complete.")
 
     # GENERAL SQL FUNCTIONS
     def create_connection(self, db_file):
@@ -134,9 +134,8 @@ class sqlShit():
             rows = cur.fetchall()
             rows = [i[0] for i in rows]
             rows = rows[0]
-            print(rows)
             # rows = rows[0]
-            print("Successfully retrieved page count for lettre {}: {}".format(lettre, rows))
+            print("Current records show a page count of {} for {}".format(rows, lettre))
             cur.close()
             return rows
         except Error as e:
@@ -153,9 +152,8 @@ class sqlShit():
             page1_url = cur.fetchall()
             page1_url = [i[0] for i in page1_url]
             page1_url = page1_url[0]
-            print(page1_url)
             # rows = rows[0]
-            print("Successfully retrieved page1_url for lettre {}: {}".format(lettre, str(page1_url)))
+            print("Opening page1_url for lettre {}: {}".format(lettre, str(page1_url)))
             cur.close()
             return lettre, page1_url
         except Error as e:
@@ -164,16 +162,17 @@ class sqlShit():
     def update_page_count(self, lettre, update_var):
         try:
             #uhhhhh I have no clue if this will work and if it does I don't know why lol
-            let_var, page_count = self.get_page_count_by_lettre(lettre)
+            page_count = self.get_page_count_by_lettre(lettre)
             cur = self.conn.cursor()
 
             if update_var == page_count:
                 print("No changes detected in page count since last run.")
 
+            # BUG IS CAUSING THIS PORTION TO RUN REGARDLESS BUT STILL
             elif update_var > page_count:
                 print("Change detected. Updating...")
                 sql_update_queery = "update url_data set page_count = %s where lettre = '%s'" % (
-                    update_var, let_var)  # page_count
+                    update_var, lettre)  # page_count
                 cur.execute(sql_update_queery)
                 self.conn.commit()
                 print("Record Updated successfully")
@@ -191,17 +190,16 @@ class sqlShit():
         #use letter from sql to get certain data points on it
         # this is ass backwards and stupid but I don't care
         let_var2, page1_var2 = self.get_page1_url_by_lettre(lettre)
-        self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
+
         # var = self.retrieve_lettre_page1_url()
         self.driver.get(page1_var2)
-        print("Opening page one of letter: {}".format(let_var2))
 
         xpath_div_var = self.driver.find_element(By.XPATH, config['xpaths']['dafont_main_page_elem'])
         xpath_lastpage_text_var = [elem for elem in xpath_div_var.find_elements(By.XPATH,
                                                                                 str(config['xpaths']['dafont_sub_page_elem']))]
         if len(xpath_lastpage_text_var) == 1:
-            self.update_page_count(lettre, 1)
-
+            self.update_page_count(let_var2, 1)
+            print("Max page calculated to be: 1\n")
             #for some reason fucks up on x which only has one page but
             #this resolves the issue for some fucking reason
 
@@ -209,14 +207,13 @@ class sqlShit():
             page_ints = [int(elem.get_attribute("text").strip()) for elem in xpath_lastpage_text_var
                                if elem.get_attribute("text").strip() != '']
             max_page = max(page_ints) #returns max of the list
-            self.update_page_count(lettre, max_page)
-
+            self.update_page_count(let_var2, max_page)
+            print("Max page calculated to be: {}\n".format(str(max_page)))
 
     # OOF DL DATA WILL NEED TO BE SPLIT UP INTO TABLES FOR EACH LETTER SO THAT I CAN TRACK PAGE NUMBER, DL LINK, AND IF
     # I ACTUALLY DOWNLOADED IT OR IF I JUST SCRAPED THE VALUES TO BE DOWNLOADED LATER, MAYBE ADD OBJECT TO TELL IT TO
     # SCRAPE VS DOWNLOAD
     # DL DATA SPECIFIC FUNCTIONS
-
     def get_download_links_update_table(self,lettre_var, page_num):
         # checks if the dl_str extracted from the site already exists in the database
         self.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
@@ -261,7 +258,6 @@ class sqlShit():
 
 
     def mass_open_shit(self,lettre_var, limit):
-        self.setup_browser(strat='none', dl_location=config['dl_location']['dafont'], headless=False)
         for i in self.list_dl_str_by_lettre(lettre_var, limit):
             # Open a new window
             exec_script = "window.open('{}');".format(config['baselink']['dafont_dl'].format(i))
@@ -275,14 +271,21 @@ class sqlShit():
 
 
 def main():
-    keys = [ascii for ascii in ascii_lowercase] + ["'%23'"]
+    keys = [ascii for ascii in ascii_lowercase] + ["%23"]
     database = "data_dafont.db"
     run = sqlShit()
     run.create_connection(database)
-    # for let_var in keys:
-    #
-    #    run.drop_table(let_var)
-    lettre = 'a'
+
+    # Extract the last pages for each page lettre. Will auto update the table.
+    run.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
+    for lettre in keys[25:]:
+        run.extract_lastpage_update_table(lettre)
+
+    # extract dl keys
+    run.setup_browser(strat='none', dl_location=config['dl_location']['dafont'], headless=False)
+
+
+
     # run.get_dl_links_from_table(lettre, None)
     # run.dafont_dl_urls(lettre, 5)
     # run.mass_open_shit('a', 20)
