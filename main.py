@@ -284,9 +284,10 @@ def main():
 
     # extract dl keys for all pages and dump into database
     run.setup_browser(strat='normal', dl_location=config['dl_location']['dafont'], headless=True)
-    for lettre in keys:
+    for lettre in keys[1:]:
         page_count = run.get_page_count_by_lettre(lettre)
         for i in range(1, page_count+1):
+            print("Currently on: {} {}".format(lettre, i))
             run.get_download_links_update_table(lettre_var=lettre,page_num=i)
 
 
